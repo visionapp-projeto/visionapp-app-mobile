@@ -6,6 +6,7 @@
 ![Static Badge](https://img.shields.io/badge/Flutter-blue?style=for-the-badge&logo=flutter)
 ![Static Badge](https://img.shields.io/badge/firebase-red?style=for-the-badge&logo=firebase&logoColor=yellow)
 ![Static Badge](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
+![Static Badge](https://img.shields.io/badge/Version%201.0-red?style=flat)
 
 </div>
 
