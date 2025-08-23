@@ -21,6 +21,7 @@ jobs:
         with:
           flutter-version: '3.13.0'  # garante Dart >= 3.7.2
           channel: 'stable'
+          cache: false
 
       # Verifica se Flutter está disponível
       - run: flutter --version
