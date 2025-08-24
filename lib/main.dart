@@ -26,21 +26,6 @@ void main() async {
     }
   }
 
-  try {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  } catch (e) {
-    if (kDebugMode) {
-      print('Erro ao inicializar Firebase: $e');
-    }
-  }
-
-    try {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  } catch (e) {
-    if (kDebugMode) {
-      print('Erro ao inicializar Firebase: $e');
-    }
-  }
 
   // Inicialização do FaceCamera
   try {
