@@ -1,4 +1,3 @@
-import 'package:http/http.dart';
 
 class ApiConstants {
   static const String baseUrl = 'https://fastapi.ajvale.com.br';
@@ -13,12 +12,13 @@ class ApiConstants {
 }
 
 class keycloakConstants {
-  static const String issuer = 'https://<sso.ajvale.com.br>/realms/<interno>';
-  static const authEndpoint = '$issuer/protocol/openid-connect/auth';
-  static const tokenEndpoint = '$issuer/protocol/openid-connect/token';
+  static const String issuer = 'https://sso.ajvale.com.br/realms/<interno>';
+  static const String authEndpoint = '$issuer/protocol/openid-connect/auth';
+  static const String tokenEndpoint = '$issuer/protocol/openid-connect/token';
 
-  static const clientId = '<visionapp>';
-  static const redirectUri = 'com.visionapp://callback';
-  static const scopes = 'openid profile email';
-  
+  static const String clientId = 'visionapp';
+  static const String redirectUri = 'com.visionapp://callback';
+  static const String scopes = 'openid profile email';
+
 }
+
