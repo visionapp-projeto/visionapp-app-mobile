@@ -14,7 +14,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   @override
-  void initState() {
+  void initState() { 
     super.initState();
     _checkLogin();
     // Espera 3 segundos e navega para a tela de login
