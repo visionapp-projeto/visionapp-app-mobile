@@ -16,7 +16,7 @@ Future<void> fazerLogin({
   showLoadingDialog(context, mensagem: 'Entrando...');
 
   try {
-    final tokens = await KeycloackAuthService().login();
+    final tokens = await KeycloakAuthService().login();
     if (tokens == null) {
       Navigator.pop(context); // Fecha o diálogo de carregamento
       setError('Erro ao fazer login', null);

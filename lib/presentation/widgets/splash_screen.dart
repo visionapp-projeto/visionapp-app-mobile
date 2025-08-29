@@ -6,6 +6,8 @@ import 'package:vision_app/presentation/pages/home/tela_home.dart';
 import 'package:vision_app/presentation/pages/login/tela_login.dart';
 import 'package:vision_app/core/services/auth_backend_service.dart';
 import 'package:vision_app/core/services/local_storage_service.dart';
+import 'package:vision_app/core/services/keycloack_auth_service.dart';
+// import 'package:vision_app/core/services/keycloak_auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -29,19 +31,44 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _checkLogin() async {
-  final token = await LocalStorageService().getToken();
-  if (token != null) {
-    final perfil = await getUserProfile(token);
+  final storage = LocalStorageService();
+  final kc = KeycloakAuthService();
+
+  var tokens = await storage.loadTokens();
+
+  if (tokens != null) {
+    if (tokens.isExpired) {
+      final refreshed = await kc.refresh(tokens.refreshToken);
+      if (refreshed != null) {
+        await storage.saveTokens(refreshed);
+        tokens = refreshed;
+      } else {
+        // refresh falhou, manda pro login
+        _goToLogin();
+        return;
+      }
+    }
+
+    final perfil = await getUserProfile(tokens.accessToken);
     if (perfil != null) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => TelaHome(perfil: perfil),
-        ),
+        MaterialPageRoute(builder: (_) => TelaHome(perfil: perfil)),
       );
+      return;
     }
   }
+  _goToLogin();
 }
+
+void _goToLogin() {
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (_) => const TelaLogin()),
+    (_) => false,
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {

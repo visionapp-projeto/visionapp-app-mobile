@@ -21,7 +21,7 @@ class AuthToken {
   bool get isExpired => DateTime.now().isAfter(expiresAt.subtract(const Duration(seconds: 30)));
 }
 
-class KeycloackAuthService {
+class KeycloakAuthService {
   String _base64UrlNoPadding(List<int> bytes) => base64.encode(bytes).replaceAll('=', '');
 
   String _randomString([int length = 64]) {
