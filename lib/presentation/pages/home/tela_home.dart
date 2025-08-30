@@ -33,7 +33,7 @@ class _TelaHomeState extends State<TelaHome> {
 
   // Apenas lógica de verificação de token, sem exibir no front
   Future<void> _verificarToken() async {
-    final t = await AuthTokenService().getToken();
+    final t = await AuthTokenService().getValidAccessToken();
     setState(() {
       _token = t;
     });

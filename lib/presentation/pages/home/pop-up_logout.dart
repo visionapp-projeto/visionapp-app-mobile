@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:vision_app/core/constants/app_colors.dart';
 import 'package:vision_app/core/constants/app_texts.dart';
 import 'package:vision_app/presentation/pages/login/tela_login.dart';
+import 'package:vision_app/presentation/controllers/logout_controller.dart';
 import '../../widgets/button.dart';
 
 
@@ -61,12 +62,7 @@ void mostrarDialogoLogout(BuildContext context) {
                   onPressed: () {
                   Navigator.of(context).pop();
                   FocusScope.of(context).unfocus();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TelaLogin()
-                    ),
-                  );
+                  fazerLogout(context);
                 },)
             ),
           ],

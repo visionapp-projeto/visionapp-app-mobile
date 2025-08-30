@@ -12,7 +12,7 @@ class ApiConstants {
 }
 
 class keycloakConstants {
-  static const String issuer = 'https://sso.ajvale.com.br/realms/<interno>';
+  static const String issuer = 'https://sso.ajvale.com.br/realms/interno';
   static const String authEndpoint = '$issuer/protocol/openid-connect/auth';
   static const String tokenEndpoint = '$issuer/protocol/openid-connect/token';
 

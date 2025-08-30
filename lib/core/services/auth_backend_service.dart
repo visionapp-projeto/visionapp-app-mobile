@@ -46,7 +46,7 @@ Future<String?> postWithToken(String firebaseToken) async {
 }
 
 
-Future<Map<String, dynamic>?> getUserProfile(String backendJwt) async {
+Future<Map<String, dynamic>?> getUserProfile(String access_token) async {
   // monta a URI sem query param
   final uri = Uri.parse(ApiConstants.getuser);
 
@@ -55,7 +55,7 @@ Future<Map<String, dynamic>?> getUserProfile(String backendJwt) async {
       uri,
       headers: {
         'accept': 'application/json',
-        'Authorization': 'Bearer $backendJwt',
+        'Authorization': 'Bearer $access_token',
       },
     );
     
@@ -75,6 +75,36 @@ Future<Map<String, dynamic>?> getUserProfile(String backendJwt) async {
   } catch (e) {
     if (kDebugMode) {
       print('Exception no getUserProfile: $e');
+    }
+    return null;
+  }
+}
+
+/// Obtém informações do usuário direto do Keycloak (UserInfo endpoint)
+Future<Map<String, dynamic>?> getKeycloakUserInfo(String accessToken) async {
+  final uri = Uri.parse('${keycloakConstants.issuer}/protocol/openid-connect/userinfo');
+  try {
+    final response = await http.get(
+      uri,
+      headers: {
+        'accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+    if (response.statusCode == 200) {
+      if (kDebugMode) {
+        print('UserInfo obtido: ${response.body}');
+      }
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else {
+      if (kDebugMode) {
+        print('Erro no userinfo: ${response.statusCode} → ${response.body}');
+      }
+      return null;
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print('Exception no userinfo: $e');
     }
     return null;
   }
