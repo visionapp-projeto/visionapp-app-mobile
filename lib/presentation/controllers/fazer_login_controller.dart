@@ -13,9 +13,6 @@ class _LoginGuard {
 
 Future<void> fazerLogin({
   required BuildContext context,
-  required TextEditingController emailController,
-  required TextEditingController senhaController,
-  required void Function(String? cpfError, String? senhaError) setError,
 }) async {
   if (_LoginGuard.inProgress) {
     return;
@@ -28,7 +25,9 @@ Future<void> fazerLogin({
     final tokens = await KeycloakAuthService().login();
     if (tokens == null) {
       Navigator.pop(context); // Fecha o diálogo de carregamento
-      setError('Erro ao fazer login', null);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao fazer login. Tente novamente.')),
+      );
       return;
     }
 
@@ -49,7 +48,9 @@ Future<void> fazerLogin({
     }
     if (perfil == null) {
       Navigator.pop(context);
-      setError('Não foi possível obter o perfil.', null);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Não foi possível obter o perfil.')),
+      );
       return;
     }
 
