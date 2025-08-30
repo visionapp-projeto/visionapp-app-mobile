@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:vision_app/presentation/pages/home/tela_home.dart';
 import 'package:vision_app/presentation/widgets/loading_dialog.dart';
 import 'package:vision_app/core/services/local_storage_service.dart';
-import '../../core/services/auth_firebase_service.dart';
+
 import '../../core/services/auth_backend_service.dart';
-import '../../core/services/auth_token_service.dart';
+
 import '../../core/services/keycloack_auth_service.dart';
 
 class _LoginGuard {

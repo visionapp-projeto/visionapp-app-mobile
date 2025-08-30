@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:vision_app/core/constants/app_colors.dart';
 import 'package:vision_app/core/constants/app_texts.dart';
-import 'package:vision_app/presentation/pages/login/tela_login.dart';
 import 'package:vision_app/presentation/controllers/logout_controller.dart';
 import '../../widgets/button.dart';
 
