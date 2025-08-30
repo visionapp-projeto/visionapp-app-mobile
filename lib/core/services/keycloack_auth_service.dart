@@ -197,65 +197,28 @@ class KeycloakAuthService {
     );
   }
 
-  /// Encerra a sessão no Keycloak (logout) usando o refresh_token
+  /// Logout "back-channel": invalida a sessão do usuário no servidor usando o refresh_token,
+  /// sem abrir navegador (mais estável em apps nativos). Requer client Public.
   Future<void> logout() async {
     try {
       final storage = LocalStorageService();
       final tokens = await storage.loadTokens();
       if (tokens == null) return;
 
-      // 1) Revoga explicitamente o refresh_token (boa prática)
-      try {
-        final revokeUri = Uri.parse('${keycloakConstants.issuer}/protocol/openid-connect/revoke');
-        final revoke = await http.post(
-          revokeUri,
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-          body: {
-            'client_id': keycloakConstants.clientId,
-            'token_type_hint': 'refresh_token',
-            'token': tokens.refreshToken,
-          },
-        );
-        if (kDebugMode) debugPrint('[HTTP] revoke.status=${revoke.statusCode}');
-      } catch (e) {
-        if (kDebugMode) debugPrint('[HTTP] revoke.error=$e');
-      }
+      final uri = Uri.parse('${keycloakConstants.issuer}/protocol/openid-connect/logout');
+      final resp = await http.post(
+        uri,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: {
+          'client_id': keycloakConstants.clientId,
+          'refresh_token': tokens.refreshToken,
+        },
+      );
+      if (kDebugMode) debugPrint('[HTTP] logout.status=${resp.statusCode}');
 
-      // 2) Faz logout da sessão do usuário no servidor (SSO)
-      try {
-        final endSessionUri = Uri.parse('${keycloakConstants.issuer}/protocol/openid-connect/logout').replace(
-          queryParameters: {
-            'client_id': keycloakConstants.clientId,
-            'post_logout_redirect_uri': keycloakConstants.redirectUri,
-            // id_token_hint ajuda o servidor a identificar a sessão
-            'id_token_hint': tokens.idToken,
-          },
-        );
-        // Abre o navegador para limpar os cookies SSO e aguarda o callback
-        await FlutterWebAuth2.authenticate(
-          url: endSessionUri.toString(),
-          callbackUrlScheme: 'com.visionapp',
-        );
-        if (kDebugMode) debugPrint('[OIDC] end-session concluído');
-      } catch (e) {
-        if (kDebugMode) debugPrint('[OIDC] end-session error=$e');
-      }
-
-      // 3) Redundância: também aceita POST no logout com refresh_token (algumas versões)
-      try {
-        final uri = Uri.parse('${keycloakConstants.issuer}/protocol/openid-connect/logout');
-        final resp = await http.post(
-          uri,
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-          body: {
-            'client_id': keycloakConstants.clientId,
-            'refresh_token': tokens.refreshToken,
-          },
-        );
-        if (kDebugMode) debugPrint('[HTTP] logout.status=${resp.statusCode}');
-      } catch (e) {
-        if (kDebugMode) debugPrint('[HTTP] logout.post.error=$e');
-      }
+      // Observação: Se a sua instância exigir front-channel logout, peça ao admin
+      // para adicionar em "Valid Post Logout Redirect URIs" a URI com o esquema do app
+      // (com.visionapp://callback) e use a versão com navegador.
     } catch (e) {
       if (kDebugMode) debugPrint('[HTTP] logout.error=$e');
     }
