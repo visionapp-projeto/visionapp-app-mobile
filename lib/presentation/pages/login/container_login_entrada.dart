@@ -8,7 +8,9 @@ import '../../controllers/fazer_login_controller.dart';
 class Logincontainer extends StatelessWidget {
   const Logincontainer({super.key});
 
-  void _entrar(BuildContext context) => fazerLogin(context: context);
+  void _entrar(BuildContext context) {
+    fazerLogin(context: context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,34 +25,119 @@ class Logincontainer extends StatelessWidget {
         border: Border.all(color: ColorPalette.cinza, width: 1),
       ),
       child: Padding(
-        // mantive seus paddings
         padding: const EdgeInsets.only(top: 42, right: 24, left: 25, bottom: 64),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch, // ocupa toda a largura
           children: <Widget>[
-            const SizedBox(height: 20),
-
-            // ✅ largura fluida: nada de número mágico que estoura com o padding
+            // Botão Entrar (fluido)
             SizedBox(
-              width: double.infinity,
+              height: 48,
               child: Button(text: 'Entrar', onPressed: () => _entrar(context)),
             ),
-
             const SizedBox(height: 8),
 
-            // ✅ sem Row; deixa o Text receber as constraints e quebrar linha
-            const Text(
-              'Não possui uma conta? Contate um superior para cadastro.',
-              style: TextStyle(
-                color: ColorPalette.cinzaMedio,
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-              ),
-              textAlign: TextAlign.center,
-              softWrap: true,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis, // segurança extra
+            // Mensagem + Cadastrar (sem overflow)
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 4,
+              children: [
+                const Text(
+                  'Não possui uma conta?',
+                  style: TextStyle(
+                    color: ColorPalette.cinzaMedio,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      barrierColor: Colors.transparent, // mantém seu fundo transparente
+                      builder: (BuildContext context) {
+                        return Stack(
+                          children: [
+                            // Fundo com o papel de parede
+                            Positioned.fill(
+                              child: Image.asset('assets/logo.png', fit: BoxFit.cover),
+                            ),
+                            // Popup centralizado (seu layout original, com melhorias de responsividade)
+                            Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(20),
+                                margin: const EdgeInsets.symmetric(horizontal: 20),
+                                decoration: BoxDecoration(
+                                  color: ColorPalette.branco,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: ColorPalette.preto.withOpacity(0.25),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: SingleChildScrollView(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(maxWidth: 420),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Image(image: AssetImage('assets/IconApp.png')),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          'Não tem cadastro?',
+                                          style: Theme.of(context).textTheme.titleMedium,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        const SizedBox(height: 25),
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 30.0),
+                                          child: Text(
+                                            'Entre em contato com um superior para liberar seu acesso ao VisionApp.',
+                                            style: TextStyle(
+                                              wordSpacing: 0,
+                                              letterSpacing: 0,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w400,
+                                              color: ColorPalette.preto,
+                                            ),
+                                            textAlign: TextAlign.justify,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 24),
+                                        SizedBox(
+                                          width: double.infinity,
+                                          height: 44,
+                                          child: Button(
+                                            text: 'Entendido',
+                                            onPressed: () => Navigator.of(context).pop(),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 12),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: const Text(
+                    'Cadastrar',
+                    style: TextStyle(
+                      color: ColorPalette.button,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
