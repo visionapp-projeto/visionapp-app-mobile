@@ -92,20 +92,11 @@ Future<Map<String, dynamic>?> getKeycloakUserInfo(String accessToken) async {
       },
     );
     if (response.statusCode == 200) {
-      if (kDebugMode) {
-        print('UserInfo obtido: ${response.body}');
-      }
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
-      if (kDebugMode) {
-        print('Erro no userinfo: ${response.statusCode} → ${response.body}');
-      }
       return null;
     }
   } catch (e) {
-    if (kDebugMode) {
-      print('Exception no userinfo: $e');
-    }
     return null;
   }
 }
