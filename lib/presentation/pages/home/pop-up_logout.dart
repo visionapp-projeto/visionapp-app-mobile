@@ -10,12 +10,13 @@ import '../../widgets/button.dart';
 
 
 void mostrarDialogoLogout(BuildContext context) {
-  
+  // Mantemos uma referência ao contexto "raiz" (fora do diálogo)
+  final rootContext = context;
 
   showDialog(
-    context: context,
+    context: rootContext,
     barrierDismissible: false,
-    builder: (context) => Dialog(
+    builder: (dialogContext) => Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       backgroundColor: ColorPalette.branco,
       child: Padding(
@@ -38,7 +39,7 @@ void mostrarDialogoLogout(BuildContext context) {
                   right: -17,
                   child: IconButton(
                     icon: const Icon(Icons.close, size: 28, color: ColorPalette.cinzaMedio),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => Navigator.of(dialogContext).pop(),
                     splashRadius: 22,
                   ),
                 ),
@@ -57,13 +58,22 @@ void mostrarDialogoLogout(BuildContext context) {
             ),
             const SizedBox(height: 28),
             SizedBox(
-              child: Button(text: StandardTexts.popupLogoutButton, backgroundColor: ColorPalette.vermelhoPaleta, textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18,
-                  color: ColorPalette.branco,) , 
-                  onPressed: () {
-                  Navigator.of(context).pop();
-                  FocusScope.of(context).unfocus();
-                  fazerLogout(context);
-                },)
+              child: Button(
+                text: StandardTexts.popupLogoutButton,
+                backgroundColor: ColorPalette.vermelhoPaleta,
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: ColorPalette.branco,
+                ),
+                onPressed: () async {
+                  // Fecha apenas o diálogo usando o contexto do diálogo
+                  Navigator.of(dialogContext).pop();
+                  // Usa o contexto raiz para navegar e limpar focos
+                  FocusScope.of(rootContext).unfocus();
+                  await fazerLogout(rootContext);
+                },
+              )
             ),
           ],
         ),
