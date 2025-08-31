@@ -103,7 +103,6 @@ class AuthTokenService {
     }
   }
 
-  // Açúcar: cria headers com Authorization e, opcionalmente, X-Matricula
   Map<String, String> buildAuthHeaders({String? overrideToken, bool includeMatriculaHeader = false}) {
     final tok = overrideToken ?? _cachedToken;
     final headers = <String, String>{

@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:vision_app/core/constants/api_constants.dart';
 import 'package:vision_app/core/services/auth_token_service.dart';
-import 'package:vision_app/core/services/keycloack_auth_service.dart'; // para keycloakConstants em /userinfo
 
 // -------- Helpers locais (apenas leitura do payload; assinatura é validada no backend)
 Map<String, dynamic>? _decodeJwtPayload(String token) {
