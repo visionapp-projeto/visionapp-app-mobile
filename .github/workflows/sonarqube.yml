@@ -15,22 +15,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Instalar dependências do Flutter
+      # Instalar Flutter no runner
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'  # ajuste para sua versão
+          flutter-version: '3.24.0'   # ajuste para sua versão
+          channel: 'stable'
 
-      - name: Run Flutter tests with coverage (if any)
+      - name: Run Flutter tests with coverage
         run: |
           if [ -d "test" ]; then
             flutter test --coverage
           else
+            echo "⚠️ Nenhum teste encontrado, criando lcov vazio..."
             mkdir -p coverage && echo "TN:" > coverage/lcov.info
           fi
 
-
+      # Rodar análise no SonarQube
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
