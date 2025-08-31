@@ -1,29 +1,29 @@
 name: Sonarqube
 
 on:
-   push:
+  push:
     branches:
       - develop
       - main
 
-
 jobs:
   build:
-    name: Build
     runs-on: ubuntu-latest
-    permissions: read-all
-    environment: SonarQube
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: sonarsource/sonarqube-scan-action@master
+          fetch-depth: 0
+
+      # Instalar dependências do Flutter
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'  # ajuste para sua versão
+
+      - name: Run Flutter tests with coverage
+        run: flutter test --coverage
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      # If you wish to fail your job when the Quality Gate is red, uncomment the
-      # following lines. This would typically be used to fail a deployment.
-      # - uses: sonarsource/sonarqube-quality-gate-action@master
-      #   timeout-minutes: 5
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
