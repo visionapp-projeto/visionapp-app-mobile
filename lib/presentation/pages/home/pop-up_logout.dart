@@ -3,17 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:vision_app/core/constants/app_colors.dart';
 import 'package:vision_app/core/constants/app_texts.dart';
+// NÃO navegue aqui: o controller fará isso após limpar tudo
 import 'package:vision_app/presentation/controllers/logout_controller.dart';
 import '../../widgets/button.dart';
 
-
-
-void mostrarDialogoLogout(BuildContext context) {
-  // Mantemos uma referência ao contexto "raiz" (fora do diálogo)
-  final rootContext = context;
-
+void mostrarDialogoLogout(BuildContext parentContext) {
   showDialog(
-    context: rootContext,
+    context: parentContext,
     barrierDismissible: false,
     builder: (dialogContext) => Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -30,7 +26,7 @@ void mostrarDialogoLogout(BuildContext context) {
                   child: Text(
                     StandardTexts.popupLogoutTitle,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(parentContext).textTheme.titleMedium,
                   ),
                 ),
                 Positioned(
@@ -45,7 +41,7 @@ void mostrarDialogoLogout(BuildContext context) {
               ],
             ),
             const SizedBox(height: 4),
-            
+
             const SizedBox(height: 18),
             const Text(
               StandardTexts.popupLogoutMessage,
@@ -66,13 +62,14 @@ void mostrarDialogoLogout(BuildContext context) {
                   color: ColorPalette.branco,
                 ),
                 onPressed: () async {
-                  // Fecha apenas o diálogo usando o contexto do diálogo
+                  // fecha o diálogo antes de navegar/limpar
                   Navigator.of(dialogContext).pop();
-                  // Usa o contexto raiz para navegar e limpar focos
-                  FocusScope.of(rootContext).unfocus();
-                  await fazerLogout(rootContext);
+                  // garante que o teclado feche (caso aberto)
+                  FocusScope.of(parentContext).unfocus();
+                  // limpa tokens + cache + sessão Keycloak e navega para Login
+                  await fazerLogout(parentContext);
                 },
-              )
+              ),
             ),
           ],
         ),

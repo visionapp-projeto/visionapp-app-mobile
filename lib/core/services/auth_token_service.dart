@@ -1,3 +1,4 @@
+// lib/core/services/auth_token_service.dart
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vision_app/core/services/local_storage_service.dart';
@@ -30,17 +31,35 @@ class AuthTokenService {
   Map<String, dynamic>? get claims =>
       _cachedToken == null ? null : _decodeJwtPayload(_cachedToken!);
 
-  String? getMatricula() => claims?['matricula']?.toString();
-  String? getCpf() => claims?['cpf']?.toString();
-  String? getSubject() => claims?['sub']?.toString();
+  String? _firstNonEmptyClaim(Iterable<String> keys) {
+    final c = claims;
+    if (c == null) return null;
+    for (final k in keys) {
+      final v = c[k];
+      if (v == null) continue;
+      final s = (v is String) ? v.trim() : v.toString().trim();
+      if (s.isNotEmpty) return s;
+    }
+    return null;
+  }
 
-  // ========= API compatível com teu código atual =========
+  String? getMatricula() => _firstNonEmptyClaim([
+        'matricula',
+        'matriculaServidor',
+        'employeeId',
+        'employeeID',
+        'employee_number',
+        'preferred_username',
+      ]);
+  String? getCpf() => _firstNonEmptyClaim(['cpf']);
+  String? getSubject() => _firstNonEmptyClaim(['sub']);
+  String? getCargo() => _firstNonEmptyClaim(['cargo', 'funcao', 'role', 'roleName']);
+  String? getClasse() => _firstNonEmptyClaim(['nivel_classe', 'classe', 'nivelClasse']);
 
   // Obter o token atual (da memória ou do armazenamento)
   Future<String?> getToken() async {
     if (_cachedToken != null) return _cachedToken;
 
-    // Primeiro tenta o storage “oficial” (access/refresh)
     final storage = LocalStorageService();
     final tokens = await storage.loadTokens();
     if (tokens?.accessToken != null) {
@@ -48,25 +67,27 @@ class AuthTokenService {
       return _cachedToken;
     }
 
-    // Fallback: legado em SharedPreferences
+    // Fallback: legado em SharedPreferences (se existir)
     final prefs = await SharedPreferences.getInstance();
     _cachedToken = prefs.getString(_tokenKey);
     return _cachedToken;
   }
 
-  // Getter síncrono (pode retornar null se não carregado ainda)
   String? get token => _cachedToken;
 
-  // Salvar um novo token (compat legado)
+  // legado: salva apenas no SharedPreferences
   Future<void> saveToken(String token) async {
     _cachedToken = token;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, token);
   }
 
-  // Retorna um access token válido do Keycloak (faz refresh se necessário)
+  /// Atualiza SOMENTE o cache em memória (use após saveTokens no storage oficial).
+  void setInMemoryToken(String? accessToken) {
+    _cachedToken = accessToken;
+  }
+
   Future<String?> getValidAccessToken() async {
-    // 1) cache em memória
     if (_cachedToken != null) {
       final c = _decodeJwtPayload(_cachedToken!);
       final exp = c?['exp'];
@@ -78,19 +99,16 @@ class AuthTokenService {
       }
     }
 
-    // 2) tokens armazenados
     final storage = LocalStorageService();
     final kc = KeycloakAuthService();
 
     var tokens = await storage.loadTokens();
     if (tokens == null) {
-      // 3) compat com o legado (pode estar sem refreshToken)
-      final legacy = await getToken();
+      final legacy = await getToken(); // pode vir do legado
       _cachedToken = legacy;
       return legacy;
     }
 
-    // 4) Se expirar, tenta refresh
     if (tokens.isExpired) {
       final refreshed = await kc.refresh(tokens.refreshToken);
       if (refreshed == null) return null;
@@ -116,5 +134,33 @@ class AuthTokenService {
       }
     }
     return headers;
+  }
+
+  /// LOGOUT COMPLETO:
+  /// - encerra sessão no Keycloak (SSO do usuário)
+  /// - limpa storage oficial (access/refresh/id/exp)
+  /// - remove legado 'auth_token'
+  /// - zera cache em memória
+  Future<void> logout({bool revokeOnServer = true}) async {
+    final storage = LocalStorageService();
+
+    try {
+      // 1) encerra sessão do realm (SSO); usa refresh_token salvo
+      if (revokeOnServer) {
+        try {
+          await KeycloakAuthService().logout(); // usa seu serviço de Keycloak (ver abaixo)
+        } catch (_) {}
+      }
+
+      // 2) limpa storage oficial
+      await storage.clear();
+
+      // 3) remove token legado
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_tokenKey);
+    } finally {
+      // 4) zera cache em memória
+      _cachedToken = null;
+    }
   }
 }
