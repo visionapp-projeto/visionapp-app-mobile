@@ -19,8 +19,14 @@ jobs:
         with:
           flutter-version: '3.24.0'  # ajuste para sua versão
 
-      - name: Run Flutter tests with coverage
-        run: flutter test --coverage
+      - name: Run Flutter tests with coverage (if any)
+        run: |
+          if [ -d "test" ]; then
+            flutter test --coverage
+          else
+            mkdir -p coverage && echo "TN:" > coverage/lcov.info
+          fi
+
 
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@v2
