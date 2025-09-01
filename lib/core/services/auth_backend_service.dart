@@ -4,21 +4,23 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:vision_app/core/constants/api_constants.dart';
 
-// -------- Helpers locais (apenas leitura do payload; assinatura é validada no backend)
+// -------- Helper local: lê APENAS o payload do JWT (sem validar assinatura)
 Map<String, dynamic>? _decodeJwtPayload(final String token) {
   final List<String> parts = token.split('.');
   if (parts.length != 3) return null;
 
   try {
     final String normalized = base64Url.normalize(parts[1]);
-    final String decoded = utf8.decode(base64Url.decode(normalized));
-    final Map<String, dynamic> payload = jsonDecode(decoded) as Map<String, dynamic>;
+    final List<int> bytes = base64Url.decode(normalized);
+    final String jsonStr = utf8.decode(bytes);
+    final Map<String, dynamic> payload =
+        jsonDecode(jsonStr) as Map<String, dynamic>;
     return payload;
   } on FormatException catch (e) {
     if (kDebugMode) debugPrint('Formato inválido ao decodificar JWT: $e');
     return null;
   } on ArgumentError catch (e) {
-    if (kDebugMode) debugPrint('Argumento inválido ao decodificar JWT: $e');
+    if (kDebugMode) debugPrint('Segmento base64 inválido: $e');
     return null;
   }
 }
