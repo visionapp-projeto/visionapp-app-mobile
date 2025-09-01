@@ -25,6 +25,23 @@ Map<String, dynamic>? _decodeJwtPayload(final String token) {
   }
 }
 
+/// Extrai a matrícula de um JWT do backend (se existir no payload)
+String? _matriculaFromToken(final String accessToken) {
+  final Map<String, dynamic>? claims = _decodeJwtPayload(accessToken);
+  if (claims == null) return null;
+
+  // chaves possíveis onde a matrícula pode vir do backend
+  const List<String> candidateKeys = <String>['matricula', 'mat', 'registration'];
+
+  for (final String key in candidateKeys) {
+    final Object? value = claims[key];
+    if (value is String && value.trim().isNotEmpty) {
+      return value;
+    }
+  }
+  return null;
+}
+
 /// Envia o Firebase ID token e retorna o JWT do back-end
 Future<String?> postWithToken(final String firebaseToken) async {
   // OBS: hoje o token vai na URL. Idealmente mover para cabeçalho/JSON.
