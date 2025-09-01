@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:vision_app/core/constants/app_colors.dart';
 import 'package:vision_app/core/constants/app_texts.dart';
-// NÃO navegue aqui: o controller fará isso após limpar tudo
 import 'package:vision_app/presentation/controllers/logout_controller.dart';
 import '../../widgets/button.dart';
 
