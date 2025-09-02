@@ -22,6 +22,7 @@ Map<String, dynamic>? _decodeJwtPayload(final String token) {
     return null;
   }
 }
+
 String? _matriculaFromToken(final String accessToken) {
   final Map<String, dynamic>? claims = _decodeJwtPayload(accessToken);
   if (claims == null) return null;
