@@ -3,109 +3,166 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:vision_app/core/constants/api_constants.dart';
+import 'package:vision_app/core/services/auth_token_service.dart';
 
-// -------- Helper local: lê APENAS o payload do JWT (sem validar assinatura)
-Map<String, dynamic>? _decodeJwtPayload(final String token) {
-  final List<String> parts = token.split('.');
+
+// -------- Helpers locais (apenas leitura do payload; assinatura é validada no backend)
+Map<String, dynamic>? _decodeJwtPayload(String token) {
+  final parts = token.split('.');
   if (parts.length != 3) return null;
-
   try {
-    final String normalized = base64Url.normalize(parts[1]);
-    final List<int> bytes = base64Url.decode(normalized);
-    final String jsonStr = utf8.decode(bytes);
-    final Map<String, dynamic> payload =
-        jsonDecode(jsonStr) as Map<String, dynamic>;
-    return payload;
-  } on FormatException catch (e) {
-    if (kDebugMode) debugPrint('Formato inválido ao decodificar JWT: $e');
-    return null;
-  } on ArgumentError catch (e) {
-    if (kDebugMode) debugPrint('Segmento base64 inválido: $e');
+    final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+    return jsonDecode(payload) as Map<String, dynamic>;
+  } catch (_) {
     return null;
   }
 }
 
-/// Extrai a matrícula de um JWT do backend (se existir no payload)
-String? _matriculaFromToken(final String accessToken) {
-  final Map<String, dynamic>? claims = _decodeJwtPayload(accessToken);
-  if (claims == null) return null;
-
-  // chaves possíveis onde a matrícula pode vir do backend
-  const List<String> candidateKeys = <String>['matricula', 'mat', 'registration'];
-
-  for (final String key in candidateKeys) {
-    final Object? value = claims[key];
-    if (value is String && value.trim().isNotEmpty) {
-      return value;
-    }
+String? _matriculaFromToken(String accessToken) {
+  final claims = _decodeJwtPayload(accessToken);
+  final candidates = [
+    'matricula',
+    'matriculaServidor',
+    'employeeId',
+    'employeeID',
+    'employee_number',
+    'preferred_username', // às vezes vem aqui
+  ];
+  for (final k in candidates) {
+    final v = claims?[k];
+    if (v == null) continue;
+    final s = v.toString().trim();
+    if (s.isNotEmpty) return s;
   }
   return null;
 }
 
-/// Envia o Firebase ID token e retorna o JWT do back-end
-Future<String?> postWithToken(final String firebaseToken) async {
-  // OBS: hoje o token vai na URL. Idealmente mover para cabeçalho/JSON.
-  final Uri uri = Uri.parse('${ApiConstants.token}$firebaseToken');
-
-  try {
-    final http.Response response = await http
-        .post(
-          uri,
-          headers: const {'accept': 'application/json'},
-          // body omitido; enviar '' é desnecessário
-        )
-        .timeout(const Duration(seconds: 15));
-
-    if (response.statusCode != 200) {
-      if (kDebugMode) {
-        debugPrint(
-          'Erro POST (${response.statusCode}): ${response.body}',
-        );
-      }
+// -------- Util: pegar valor por caminho "a.b.c"
+dynamic _getByPath(Map<String, dynamic> map, String path) {
+  dynamic cur = map;
+  for (final part in path.split('.')) {
+    if (cur is Map<String, dynamic> && cur.containsKey(part)) {
+      cur = cur[part];
+    } else {
+      
       return null;
     }
+  }
+  return cur;
+}
 
-    final Map<String, dynamic> data =
-        jsonDecode(response.body) as Map<String, dynamic>;
-    if (kDebugMode) debugPrint('POST /auth/firebase retornou: $data');
+String? _firstNonEmptyStr(Map<String, dynamic> map, List<String> paths) {
+  for (final p in paths) {
+    final v = _getByPath(map, p);
+    if (v == null) continue;
+    final s = (v is String) ? v.trim() : v.toString().trim();
+    if (s.isNotEmpty) return s;
+  }
+  return null;
+}
 
-    final String? accessToken = data['access_token'] as String?;
-    if (kDebugMode) debugPrint('accessToken="$accessToken"');
-    return accessToken;
-  } on TimeoutException {
-    if (kDebugMode) debugPrint('Timeout ao chamar POST /auth/firebase');
-    return null;
-  } on http.ClientException catch (e) {
-    if (kDebugMode) debugPrint('HTTP client error: $e');
-    return null;
-  } on FormatException catch (e) {
-    if (kDebugMode) debugPrint('JSON inválido na resposta: $e');
-    return null;
-  } catch (e) {
-    if (kDebugMode) debugPrint('Erro inesperado no POST: $e');
-    return null;
+// -------- Normalizador: garante chaves padronizadas no Map
+Map<String, dynamic> _normalizePerfil(
+  Map<String, dynamic> raw, {
+  String? tokenMatricula,
+}) {
+  final nome = _firstNonEmptyStr(raw, [
+    'nome',
+    'fullName',
+    'name',
+    'pessoa.nome',
+    'usuario.nome',
+    'dados.nome',
+  ]);
+
+  final cargo = _firstNonEmptyStr(raw, [
+    'cargo',                  // direto
+    'funcao',
+    'role',
+    'roleName',
+    'lotacao.cargo.descricao',// aninhado comum
+    'cargo.descricao',
+    'dados.cargo',
+  ]);
+
+  final nivelClasse = _firstNonEmptyStr(raw, [
+    'nivel_classe',
+    'classe',
+    'nivelClasse',
+    'cargo.classe',
+    'classe.nivel',
+    'dados.nivel_classe',
+  ]);
+
+  final matricula = _firstNonEmptyStr(raw, [
+    'matricula',
+    'matriculaServidor',
+    'registration',
+    'employeeId',
+    'employeeID',
+    'servidor.matricula',
+    'dados.matricula',
+  ]) ?? tokenMatricula;
+
+  // devolve o JSON ORIGINAL, enriquecido com as chaves padronizadas
+  return {
+    ...raw,
+    if (nome != null) 'nome': nome,
+    if (cargo != null) 'cargo': cargo,
+    if (nivelClasse != null) 'nivel_classe': nivelClasse,
+    if (matricula != null) 'matricula': matricula,
+  };
+}
+
+// -------- Cliente HTTP que sempre manda Bearer + X-Matricula
+class _AuthHttpClient extends http.BaseClient {
+  final String accessToken;
+  final http.Client _inner;
+  _AuthHttpClient(this.accessToken, [http.Client? inner]) : _inner = inner ?? http.Client();
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) {
+    request.headers['accept'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $accessToken';
+
+    final matricula = _matriculaFromToken(accessToken);
+    if (matricula != null && matricula.isNotEmpty) {
+      // ajuste o nome do header se teu backend espera outro
+      request.headers['X-Matricula'] = matricula;
+    }
+    return _inner.send(request);
   }
 }
 
-Future<Map<String, dynamic>?> getUserProfile(final String backendJwt) async {
-  final Uri uri = Uri.parse(ApiConstants.getuser);
+/// Mantém a MESMA assinatura usada no app: getUserProfile(tokens.accessToken)
+Future<Map<String, dynamic>?> getUserProfile(String access_token) async {
+  // Fallback defensivo
+  var token = (access_token).trim();
+  if (token.isEmpty) {
+    final t = await AuthTokenService().getValidAccessToken();
+    if (t == null) {
+      if (kDebugMode) print('getUserProfile: sem token válido');
+      return null;
+    }
+    token = t;
+  }
+
+  final uri = Uri.parse(ApiConstants.getuser);
+  final client = _AuthHttpClient(token);
 
   try {
-    final http.Response response = await http
-        .get(
-          uri,
-          headers: <String, String>{
-            'accept': 'application/json',
-            'Authorization': 'Bearer $backendJwt',
-          },
-        )
-        .timeout(const Duration(seconds: 15));
-
+    final response = await client.get(uri);
     if (response.statusCode == 200) {
-      if (kDebugMode) debugPrint('Perfil obtido!: ${response.body}');
-      final Map<String, dynamic> map =
-          jsonDecode(response.body) as Map<String, dynamic>;
-      return map;
+      final raw = jsonDecode(response.body) as Map<String, dynamic>;
+      final tokenMat = _matriculaFromToken(token);
+      final normalized = _normalizePerfil(raw, tokenMatricula: tokenMat);
+
+      if (kDebugMode) {
+        print('Perfil obtido (raw): ${response.body}');
+        print('Perfil normalizado: $normalized');
+      }
+
+      return normalized; // já enriquecido com 'cargo', 'nivel_classe', 'matricula', 'nome'
     } else {
       if (kDebugMode) {
         debugPrint(
@@ -124,7 +181,29 @@ Future<Map<String, dynamic>?> getUserProfile(final String backendJwt) async {
     if (kDebugMode) debugPrint('JSON inválido no perfil: $e');
     return null;
   } catch (e) {
-    if (kDebugMode) debugPrint('Exception no getUserProfile: $e');
+
+    if (kDebugMode) print('Exception no getUserProfile: $e');
+    return null;
+  }
+}
+
+Future<Map<String, dynamic>?> getKeycloakUserInfo(String accessToken) async {
+  final uri = Uri.parse('${keycloakConstants.issuer}/protocol/openid-connect/userinfo');
+  try {
+    final response = await http.get(
+      uri,
+      headers: {
+        'accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else {
+      return null;
+    }
+  } catch (e) {
+
     return null;
   }
 }

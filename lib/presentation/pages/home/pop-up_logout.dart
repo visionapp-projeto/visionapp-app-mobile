@@ -3,18 +3,14 @@
 import 'package:flutter/material.dart';
 import 'package:vision_app/core/constants/app_colors.dart';
 import 'package:vision_app/core/constants/app_texts.dart';
-import 'package:vision_app/presentation/pages/login/tela_login.dart';
+import 'package:vision_app/presentation/controllers/logout_controller.dart';
 import '../../widgets/button.dart';
 
-
-
-void mostrarDialogoLogout(BuildContext context) {
-  
-
+void mostrarDialogoLogout(BuildContext parentContext) {
   showDialog(
-    context: context,
+    context: parentContext,
     barrierDismissible: false,
-    builder: (context) => Dialog(
+    builder: (dialogContext) => Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       backgroundColor: ColorPalette.branco,
       child: Padding(
@@ -29,7 +25,7 @@ void mostrarDialogoLogout(BuildContext context) {
                   child: Text(
                     StandardTexts.popupLogoutTitle,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(parentContext).textTheme.titleMedium,
                   ),
                 ),
                 Positioned(
@@ -37,14 +33,14 @@ void mostrarDialogoLogout(BuildContext context) {
                   right: -17,
                   child: IconButton(
                     icon: const Icon(Icons.close, size: 28, color: ColorPalette.cinzaMedio),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => Navigator.of(dialogContext).pop(),
                     splashRadius: 22,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 4),
-            
+
             const SizedBox(height: 18),
             const Text(
               StandardTexts.popupLogoutMessage,
@@ -56,18 +52,23 @@ void mostrarDialogoLogout(BuildContext context) {
             ),
             const SizedBox(height: 28),
             SizedBox(
-              child: Button(text: StandardTexts.popupLogoutButton, backgroundColor: ColorPalette.vermelhoPaleta, textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18,
-                  color: ColorPalette.branco,) , 
-                  onPressed: () {
-                  Navigator.of(context).pop();
-                  FocusScope.of(context).unfocus();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TelaLogin()
-                    ),
-                  );
-                },)
+              child: Button(
+                text: StandardTexts.popupLogoutButton,
+                backgroundColor: ColorPalette.vermelhoPaleta,
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: ColorPalette.branco,
+                ),
+                onPressed: () async {
+                  // fecha o diálogo antes de navegar/limpar
+                  Navigator.of(dialogContext).pop();
+                  // garante que o teclado feche (caso aberto)
+                  FocusScope.of(parentContext).unfocus();
+                  // limpa tokens + cache + sessão Keycloak e navega para Login
+                  await fazerLogout(parentContext);
+                },
+              ),
             ),
           ],
         ),

@@ -6,6 +6,8 @@ import 'package:vision_app/presentation/pages/home/tela_home.dart';
 import 'package:vision_app/presentation/pages/login/tela_login.dart';
 import 'package:vision_app/core/services/auth_backend_service.dart';
 import 'package:vision_app/core/services/local_storage_service.dart';
+import 'package:vision_app/core/services/keycloack_auth_service.dart';
+// import 'package:vision_app/core/services/keycloak_auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -13,35 +15,47 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _checkLogin();
-    // Espera 3 segundos e navega para a tela de login
-    Future.delayed(Duration(seconds: 2), () {
-      FocusScope.of(context).unfocus();
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => TelaLogin()),
-        (route) => false, // remove todas as rotas anteriores
-      );
-    });
-  }
 
-  void _checkLogin() async {
-  final token = await LocalStorageService().getToken();
-  if (token != null) {
-    final perfil = await getUserProfile(token);
+  @override
+void initState() {
+  super.initState();
+  _checkLogin();
+}
+
+Future<void> _checkLogin() async {
+  final storage = LocalStorageService();
+  final kc = KeycloakAuthService();
+
+  var tokens = await storage.loadTokens();
+  if (tokens != null) {
+    if (tokens.isExpired) {
+      final refreshed = await kc.refresh(tokens.refreshToken);
+      if (refreshed == null) { _goToLogin(); return; }
+      await storage.saveTokens(refreshed);
+      tokens = refreshed;
+    }
+    final perfil = await getUserProfile(tokens.accessToken);
     if (perfil != null) {
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => TelaHome(perfil: perfil),
-        ),
+        MaterialPageRoute(builder: (_) => TelaHome(perfil: perfil)),
       );
+      return;
     }
   }
+  _goToLogin();
 }
+
+void _goToLogin() {
+  if (!mounted) return;
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (_) => const TelaLogin()),
+    (_) => false,
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {

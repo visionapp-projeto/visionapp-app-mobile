@@ -1,9 +1,4 @@
 {
-  "project_info": {
-    "project_number": "325346120140",
-    "project_id": "facecheck-e6e81",
-    "storage_bucket": "facecheck-e6e81.firebasestorage.app"
-  },
   "client": [
     {
       "client_info": {

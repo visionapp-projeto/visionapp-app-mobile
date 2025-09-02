@@ -5,6 +5,7 @@ import 'package:vision_app/core/utils/formatacao.dart';
 import 'package:vision_app/presentation/pages/home/pop-up_logout.dart';
 import 'package:vision_app/presentation/widgets/infotextline.dart';
 
+
 class CustomDrawer extends StatelessWidget {
   final String nomeCompleto;
   final String cargo;
