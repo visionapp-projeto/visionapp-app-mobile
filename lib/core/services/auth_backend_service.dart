@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:vision_app/core/constants/api_constants.dart';
 import 'package:vision_app/core/services/auth_token_service.dart';
+
 
 // -------- Helpers locais (apenas leitura do payload; assinatura é validada no backend)
 Map<String, dynamic>? _decodeJwtPayload(String token) {
@@ -42,6 +44,7 @@ dynamic _getByPath(Map<String, dynamic> map, String path) {
     if (cur is Map<String, dynamic> && cur.containsKey(part)) {
       cur = cur[part];
     } else {
+      
       return null;
     }
   }
@@ -162,12 +165,23 @@ Future<Map<String, dynamic>?> getUserProfile(String access_token) async {
       return normalized; // já enriquecido com 'cargo', 'nivel_classe', 'matricula', 'nome'
     } else {
       if (kDebugMode) {
-        print('Erro na requisição GET /usuario/perfil: '
-            '${response.statusCode} → ${response.body}');
+        debugPrint(
+          'Erro GET /usuario/perfil: ${response.statusCode} → ${response.body}',
+        );
       }
       return null;
     }
+  } on TimeoutException {
+    if (kDebugMode) debugPrint('Timeout no GET /usuario/perfil');
+    return null;
+  } on http.ClientException catch (e) {
+    if (kDebugMode) debugPrint('HTTP client error: $e');
+    return null;
+  } on FormatException catch (e) {
+    if (kDebugMode) debugPrint('JSON inválido no perfil: $e');
+    return null;
   } catch (e) {
+
     if (kDebugMode) print('Exception no getUserProfile: $e');
     return null;
   }
@@ -189,6 +203,7 @@ Future<Map<String, dynamic>?> getKeycloakUserInfo(String accessToken) async {
       return null;
     }
   } catch (e) {
+
     return null;
   }
 }
