@@ -7,6 +7,9 @@ import 'package:face_camera/face_camera.dart';
 import 'core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 
+
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -24,6 +27,7 @@ void main() async {
       print('Erro ao inicializar Firebase: $e');
     }
   }
+
 
   // Inicialização do FaceCamera
   try {
