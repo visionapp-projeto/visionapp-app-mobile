@@ -13,12 +13,12 @@ class UploadService {
 
 
   Future<Map<String, dynamic>> enviarImagem(
-  String matricula,
   File imageFile,
   String token,
   ) async {
     try {
-      final uri = Uri.parse('${ApiConstants.uploadendpoint}?matricula=$matricula');
+      // Sem envio de matrícula na requisição
+      final uri = Uri.parse(ApiConstants.uploadendpoint);
 
       final request = http.MultipartRequest('POST', uri);
 
@@ -65,10 +65,10 @@ class UploadService {
   }
 
 
-  Future<Map<String, dynamic>> buscarFichaPorCpf(String cpf, String matricula, String token) async {
-  // Adiciona a matrícula como parâmetro de consulta (query parameter)
+  Future<Map<String, dynamic>> buscarFichaPorCpf(String cpf, String token) async {
+  // Sem envio de matrícula como parâmetro de consulta
   final Uri url = Uri.parse(
-    '${ApiConstants.fichaendpoint}$cpf?matricula=$matricula',
+    '${ApiConstants.fichaendpoint}$cpf',
   );
 
 

@@ -42,7 +42,6 @@ mixin BuscaCpfController<T extends StatefulWidget> on State<T> {
     try {
       final responseBody = await _uploadService.buscarFichaPorCpf(
         cpf,
-        perfil?['matricula'],
         token,
       );
 
