@@ -8,7 +8,7 @@ ios/Flutter/Flutter.framework
 build/
 **/build/
 
-
+pubspec.lock
 
 # Miscellaneous
 *.class
