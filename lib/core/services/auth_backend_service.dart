@@ -151,18 +151,18 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
   }
 
   // Se recentemente falhou, pula o backend e usa Keycloak diretamente
-  if (_skipPerfilBackendUntil != null && DateTime.now().isBefore(_skipPerfilBackendUntil!)) {
-    if (kDebugMode) {
-      final until = _skipPerfilBackendUntil!.toIso8601String();
-      print('Pulando backend /usuario/perfil até $until; usando Keycloak UserInfo');
-    }
-    final kcInfo = await getKeycloakUserInfo(token);
-    if (kcInfo != null) {
-      final tokenMat = _matriculaFromToken(token);
-      return _normalizePerfil(kcInfo, tokenMatricula: tokenMat);
-    }
-    return null;
-  }
+  // if (_skipPerfilBackendUntil != null && DateTime.now().isBefore(_skipPerfilBackendUntil!)) {
+  //   if (kDebugMode) {
+  //     final until = _skipPerfilBackendUntil!.toIso8601String();
+  //     print('Pulando backend /usuario/perfil até $until; usando Keycloak UserInfo');
+  //   }
+  //   final kcInfo = await getKeycloakUserInfo(token);
+  //   if (kcInfo != null) {
+  //     final tokenMat = _matriculaFromToken(token);
+  //     return _normalizePerfil(kcInfo, tokenMatricula: tokenMat);
+  //   }
+  //   return null;
+  // }
 
   final uri = Uri.parse(ApiConstants.getuser);
   final client = _AuthHttpClient(token);
@@ -198,7 +198,7 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
         }
       }
       // evita novas tentativas por alguns minutos
-      _skipPerfilBackendUntil = DateTime.now().add(const Duration(minutes: 10));
+      // _skipPerfilBackendUntil = DateTime.now().add(const Duration(minutes: 10));
 
       final kcInfo = await getKeycloakUserInfo(token);
       if (kcInfo != null) {
@@ -224,8 +224,8 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
 
   } catch (e) {
 
-    if (kDebugMode) print('Exception no getUserProfile: $e');
-    _skipPerfilBackendUntil = DateTime.now().add(const Duration(minutes: 10));
+    // if (kDebugMode) print('Exception no getUserProfile: $e');
+    // _skipPerfilBackendUntil = DateTime.now().add(const Duration(minutes: 10));
     // Fallback também em caso de exceção de rede/parse
     try {
       final kcInfo = await getKeycloakUserInfo(token);
