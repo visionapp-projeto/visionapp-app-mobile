@@ -6,16 +6,16 @@ on:
       - develop
       - main
 
-
 jobs:
   build:
     name: Sonarqube
     runs-on: ubuntu-latest
+    permissions: read-all
     environment: SonarQube
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
       - name: Cache Flutter SDK
         uses: actions/cache@v3
         with:
@@ -40,3 +40,5 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+
