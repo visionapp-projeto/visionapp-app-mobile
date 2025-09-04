@@ -120,7 +120,7 @@ Map<String, dynamic> _normalizePerfil(
   };
 }
 
-// -------- Cliente HTTP que sempre manda Bearer + X-Matricula
+// -------- Cliente HTTP que sempre manda Bearer (sem X-Matricula)
 class _AuthHttpClient extends http.BaseClient {
   final String accessToken;
   final http.Client _inner;
@@ -133,12 +133,7 @@ class _AuthHttpClient extends http.BaseClient {
   Future<http.StreamedResponse> send(final http.BaseRequest request) {
     request.headers['accept'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $accessToken';
-
-    final String? matricula = _matriculaFromToken(accessToken);
-    if (matricula != null && matricula.isNotEmpty) {
-      // ajuste o nome do header se teu backend espera outro
-      request.headers['X-Matricula'] = matricula;
-    }
+    
     return _inner.send(request);
   }
 }
@@ -155,12 +150,28 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
     token = t;
   }
 
-  final Uri uri = Uri.parse(ApiConstants.getuser);
-  final _AuthHttpClient client = _AuthHttpClient(token);
+  // Se recentemente falhou, pula o backend e usa Keycloak diretamente
+  if (_skipPerfilBackendUntil != null && DateTime.now().isBefore(_skipPerfilBackendUntil!)) {
+    if (kDebugMode) {
+      final until = _skipPerfilBackendUntil!.toIso8601String();
+      print('Pulando backend /usuario/perfil até $until; usando Keycloak UserInfo');
+    }
+    final kcInfo = await getKeycloakUserInfo(token);
+    if (kcInfo != null) {
+      final tokenMat = _matriculaFromToken(token);
+      return _normalizePerfil(kcInfo, tokenMatricula: tokenMat);
+    }
+    return null;
+  }
+
+  final uri = Uri.parse(ApiConstants.getuser);
+  final client = _AuthHttpClient(token);
 
   try {
-    final http.Response response =
-        await client.get(uri).timeout(const Duration(seconds: 15));
+    if (kDebugMode) {
+      print('Chamando perfil (backend): $uri');
+    }
+    final response = await client.get(uri);
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> raw =
@@ -175,10 +186,29 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
       }
       return normalized;
     } else {
+      // Marca backoff e faz fallback: tenta obter do Keycloak UserInfo se o endpoint do backend não existir
       if (kDebugMode) {
-        debugPrint(
-          'Erro GET /usuario/perfil: ${response.statusCode} → ${response.body}',
-        );
+
+        if (response.statusCode == 404) {
+          print('Perfil não encontrado no backend (404). Usando Keycloak UserInfo...');
+        } else {
+          print('Erro na requisição GET /usuario/perfil: '
+              '${response.statusCode} → ${response.body}');
+          print('Tentando fallback no /userinfo do Keycloak...');
+        }
+      }
+      // evita novas tentativas por alguns minutos
+      _skipPerfilBackendUntil = DateTime.now().add(const Duration(minutes: 10));
+
+      final kcInfo = await getKeycloakUserInfo(token);
+      if (kcInfo != null) {
+        final tokenMat = _matriculaFromToken(token);
+        final normalized = _normalizePerfil(kcInfo, tokenMatricula: tokenMat);
+        if (kDebugMode) {
+          print('Perfil via Keycloak UserInfo: $kcInfo');
+          print('Perfil normalizado (fallback): $normalized');
+        }
+        return normalized;
       }
       return null;
     }
@@ -191,8 +221,25 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
   } on FormatException catch (e) {
     if (kDebugMode) debugPrint('JSON inválido no perfil: $e');
     return null;
-  } on Exception catch (e) {
-    if (kDebugMode) debugPrint('Exception no getUserProfile: $e');
+
+  } catch (e) {
+
+    if (kDebugMode) print('Exception no getUserProfile: $e');
+    _skipPerfilBackendUntil = DateTime.now().add(const Duration(minutes: 10));
+    // Fallback também em caso de exceção de rede/parse
+    try {
+      final kcInfo = await getKeycloakUserInfo(token);
+      if (kcInfo != null) {
+        final tokenMat = _matriculaFromToken(token);
+        final normalized = _normalizePerfil(kcInfo, tokenMatricula: tokenMat);
+        if (kDebugMode) {
+          print('Perfil via Keycloak UserInfo (exceção): $kcInfo');
+          print('Perfil normalizado (fallback-exceção): $normalized');
+        }
+        return normalized;
+      }
+    } catch (_) {}
+
     return null;
   }
 }
