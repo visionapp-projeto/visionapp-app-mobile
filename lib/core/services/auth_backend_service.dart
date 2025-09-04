@@ -111,7 +111,7 @@ Map<String, dynamic> _normalizePerfil(
   };
 }
 
-// -------- Cliente HTTP que sempre manda Bearer + X-Matricula
+// -------- Cliente HTTP que sempre manda Bearer (sem X-Matricula)
 class _AuthHttpClient extends http.BaseClient {
   final String accessToken;
   final http.Client _inner;
@@ -121,12 +121,6 @@ class _AuthHttpClient extends http.BaseClient {
   Future<http.StreamedResponse> send(http.BaseRequest request) {
     request.headers['accept'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $accessToken';
-
-    final matricula = _matriculaFromToken(accessToken);
-    if (matricula != null && matricula.isNotEmpty) {
-      // ajuste o nome do header se teu backend espera outro
-      request.headers['X-Matricula'] = matricula;
-    }
     return _inner.send(request);
   }
 }

@@ -72,7 +72,6 @@ Future<void> handleConfirmUpload({
     final token = AuthTokenService().token;
     if (token != null) {
       final resultado = await uploadService.enviarImagem(
-        perfil?['matricula'],
         capturedImage,
         token,
       );
