@@ -251,7 +251,7 @@ Future<Map<String, dynamic>?> getKeycloakUserInfo(final String accessToken) asyn
     final http.Response response = await http
         .get(
           uri,
-          headers: const <String, String>{
+          headers: <String, String>{
             'accept': 'application/json',
             'Authorization': 'Bearer $accessToken',
           },
