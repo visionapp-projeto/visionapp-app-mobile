@@ -3,7 +3,8 @@ class ApiConstants {
   static const String baseUrl = 'https://fastapi.ajvale.com.br';
 
 
-  static const String getuser = '$baseUrl/usuario/perfil';
+  // Alguns endpoints do FastAPI exigem barra final. Mantemos aqui para evitar 404.
+  static const String getuser = '$baseUrl/usuario/perfil/';
   static const String uploadendpoint = '$baseUrl/buscar-similaridade-foto/';
   static const String fichaendpoint = '$baseUrl/buscar-ficha-criminal/';
 
