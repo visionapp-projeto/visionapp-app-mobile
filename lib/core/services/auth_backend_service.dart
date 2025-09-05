@@ -133,10 +133,10 @@ class _AuthHttpClient extends http.BaseClient {
   Future<http.StreamedResponse> send(final http.BaseRequest request) {
     request.headers['accept'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $accessToken';
-    
     return _inner.send(request);
   }
 }
+
 /// Mantém a MESMA assinatura usada no app: getUserProfile(tokens.accessToken)
 Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
   // Fallback defensivo
