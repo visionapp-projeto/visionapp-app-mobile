@@ -212,16 +212,21 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
       // evita novas tentativas por alguns minutos
       // _skipPerfilBackendUntil = DateTime.now().add(const Duration(minutes: 10));
 
-      final kcInfo = await getKeycloakUserInfo(token);
+      final Map<String, dynamic>? kcInfo = await getKeycloakUserInfo(token);
       if (kcInfo != null) {
-        final tokenMat = _matriculaFromToken(token);
-        final normalized = _normalizePerfil(kcInfo, tokenMatricula: tokenMat);
+        final String? tokenMat = _matriculaFromToken(token);
+        final Map<String, dynamic> normalized = _normalizePerfil(
+          kcInfo,
+          tokenMatricula: tokenMat,
+        );
+
         if (kDebugMode) {
           print('Perfil via Keycloak UserInfo: $kcInfo');
           print('Perfil normalizado (fallback): $normalized');
         }
         return normalized;
       }
+
       return null;
     }
   } on TimeoutException {
