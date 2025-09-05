@@ -11,8 +11,9 @@ Map<String, dynamic>? _decodeJwtPayload(final String token) {
   if (parts.length != 3) return null;
 
   try {
-    final String payload =
-        utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+    final String payload = utf8.decode(
+      base64Url.decode(base64Url.normalize(parts[1])),
+    );
     return jsonDecode(payload) as Map<String, dynamic>;
   } on FormatException catch (e) {
     if (kDebugMode) debugPrint('Formato inválido ao decodificar JWT: $e');
@@ -58,7 +59,10 @@ Object? _getByPath(final Map<String, dynamic> map, final String path) {
   return cur;
 }
 
-String? _firstNonEmptyStr(final Map<String, dynamic> map, final List<String> paths) {
+String? _firstNonEmptyStr(
+  final Map<String, dynamic> map,
+  final List<String> paths,
+) {
   for (final String p in paths) {
     final Object? v = _getByPath(map, p);
     if (v == null) continue;
@@ -101,15 +105,17 @@ Map<String, dynamic> _normalizePerfil(
     'dados.nivel_classe',
   ]);
 
-  final String? matricula = _firstNonEmptyStr(raw, <String>[
-    'matricula',
-    'matriculaServidor',
-    'registration',
-    'employeeId',
-    'employeeID',
-    'servidor.matricula',
-    'dados.matricula',
-  ]) ?? tokenMatricula;
+  final String? matricula =
+      _firstNonEmptyStr(raw, <String>[
+        'matricula',
+        'matriculaServidor',
+        'registration',
+        'employeeId',
+        'employeeID',
+        'servidor.matricula',
+        'dados.matricula',
+      ]) ??
+      tokenMatricula;
 
   return <String, dynamic>{
     ...raw,
@@ -126,8 +132,8 @@ class _AuthHttpClient extends http.BaseClient {
   final http.Client _inner;
 
   _AuthHttpClient(final String accessToken, [final http.Client? inner])
-      : accessToken = accessToken,
-        _inner = inner ?? http.Client();
+    : accessToken = accessToken,
+      _inner = inner ?? http.Client();
 
   @override
   Future<http.StreamedResponse> send(final http.BaseRequest request) {
@@ -150,36 +156,38 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
     token = t;
   }
 
-// Se recentemente falhou, pula o backend e usa Keycloak diretamente
-// if (_skipPerfilBackendUntil != null &&
-//     DateTime.now().isBefore(_skipPerfilBackendUntil!)) {
-//   if (kDebugMode) {
-//     final String until = _skipPerfilBackendUntil!.toIso8601String();
-//     print('Pulando backend /usuario/perfil até $until; usando Keycloak UserInfo');
-//   }
+  // Se recentemente falhou, pula o backend e usa Keycloak diretamente
+  // if (_skipPerfilBackendUntil != null &&
+  //     DateTime.now().isBefore(_skipPerfilBackendUntil!)) {
+  //   if (kDebugMode) {
+  //     final String until = _skipPerfilBackendUntil!.toIso8601String();
+  //     print('Pulando backend /usuario/perfil até $until; usando Keycloak UserInfo');
+  //   }
 
-//   final Map<String, dynamic>? kcInfo = await getKeycloakUserInfo(token);
-//   if (kcInfo != null) {
-//     final String? tokenMat = _matriculaFromToken(token);
-//     return _normalizePerfil(kcInfo, tokenMatricula: tokenMat);
-//   }
-//   return null;
-// }
-  final uri = Uri.parse(ApiConstants.getuser);
-  final client = _AuthHttpClient(token);
+  //   final Map<String, dynamic>? kcInfo = await getKeycloakUserInfo(token);
+  //   if (kcInfo != null) {
+  //     final String? tokenMat = _matriculaFromToken(token);
+  //     return _normalizePerfil(kcInfo, tokenMatricula: tokenMat);
+  //   }
+  //   return null;
+  // }
+  final Uri uri = Uri.parse(ApiConstants.getuser);
+  final _AuthHttpClient client = _AuthHttpClient(token);
 
   try {
     if (kDebugMode) {
       print('Chamando perfil (backend): $uri');
     }
-    final response = await client.get(uri);
+    final http.Response response = await client.get(uri);
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> raw =
           jsonDecode(response.body) as Map<String, dynamic>;
       final String? tokenMat = _matriculaFromToken(token);
-      final Map<String, dynamic> normalized =
-          _normalizePerfil(raw, tokenMatricula: tokenMat);
+      final Map<String, dynamic> normalized = _normalizePerfil(
+        raw,
+        tokenMatricula: tokenMat,
+      );
 
       if (kDebugMode) {
         debugPrint('Perfil obtido (raw): ${response.body}');
@@ -189,12 +197,15 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
     } else {
       // Marca backoff e faz fallback: tenta obter do Keycloak UserInfo se o endpoint do backend não existir
       if (kDebugMode) {
-
         if (response.statusCode == 404) {
-          print('Perfil não encontrado no backend (404). Usando Keycloak UserInfo...');
+          print(
+            'Perfil não encontrado no backend (404). Usando Keycloak UserInfo...',
+          );
         } else {
-          print('Erro na requisição GET /usuario/perfil: '
-              '${response.statusCode} → ${response.body}');
+          print(
+            'Erro na requisição GET /usuario/perfil: '
+            '${response.statusCode} → ${response.body}',
+          );
           print('Tentando fallback no /userinfo do Keycloak...');
         }
       }
@@ -222,9 +233,7 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
   } on FormatException catch (e) {
     if (kDebugMode) debugPrint('JSON inválido no perfil: $e');
     return null;
-
   } catch (e) {
-
     // if (kDebugMode) print('Exception no getUserProfile: $e');
     // _skipPerfilBackendUntil = DateTime.now().add(const Duration(minutes: 10));
     // Fallback também em caso de exceção de rede/parse
@@ -245,9 +254,12 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
   }
 }
 
-Future<Map<String, dynamic>?> getKeycloakUserInfo(final String accessToken) async {
-  final Uri uri =
-      Uri.parse('${keycloakConstants.issuer}/protocol/openid-connect/userinfo');
+Future<Map<String, dynamic>?> getKeycloakUserInfo(
+  final String accessToken,
+) async {
+  final Uri uri = Uri.parse(
+    '${keycloakConstants.issuer}/protocol/openid-connect/userinfo',
+  );
   try {
     final http.Response response = await http
         .get(
