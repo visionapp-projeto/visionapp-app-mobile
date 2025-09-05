@@ -238,22 +238,28 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
   } on FormatException catch (e) {
     if (kDebugMode) debugPrint('JSON inválido no perfil: $e');
     return null;
-  } catch (e) {
-    // if (kDebugMode) print('Exception no getUserProfile: $e');
+  } on Exception catch (e) {
+    // ✅ troca o catch cru por on Exception
+    // if (kDebugMode) debugPrint('Exception no getUserProfile: $e');
     // _skipPerfilBackendUntil = DateTime.now().add(const Duration(minutes: 10));
     // Fallback também em caso de exceção de rede/parse
     try {
-      final kcInfo = await getKeycloakUserInfo(token);
+      final Map<String, dynamic>? kcInfo = await getKeycloakUserInfo(token);
       if (kcInfo != null) {
-        final tokenMat = _matriculaFromToken(token);
-        final normalized = _normalizePerfil(kcInfo, tokenMatricula: tokenMat);
+        final String? tokenMat = _matriculaFromToken(token);
+        final Map<String, dynamic> normalized = _normalizePerfil(
+          kcInfo,
+          tokenMatricula: tokenMat,
+        );
         if (kDebugMode) {
           print('Perfil via Keycloak UserInfo (exceção): $kcInfo');
           print('Perfil normalizado (fallback-exceção): $normalized');
         }
         return normalized;
       }
-    } catch (_) {}
+    } on Exception {
+      // fallback também falhou, ignora
+    }
 
     return null;
   }
