@@ -131,10 +131,10 @@ class _AuthHttpClient extends http.BaseClient {
   final String accessToken;
   final http.Client _inner;
 
-  _AuthHttpClient(final String accessToken, [final http.Client? inner])
+  _AuthHttpClient(String accessToken, [http.Client? inner])
     : accessToken = accessToken,
       _inner = inner ?? http.Client();
-
+       
   @override
   Future<http.StreamedResponse> send(final http.BaseRequest request) {
     request.headers['accept'] = 'application/json';
