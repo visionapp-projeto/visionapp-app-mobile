@@ -131,7 +131,6 @@ class _AuthHttpClient extends http.BaseClient {
   final String accessToken;
   final http.Client _inner;
 
-  // Construtor logo após os campos (ordem correta) e parâmetros como `final`
   _AuthHttpClient(final String accessToken, [final http.Client? inner])
       : accessToken = accessToken,
         _inner = inner ?? http.Client();
@@ -143,6 +142,7 @@ class _AuthHttpClient extends http.BaseClient {
     return _inner.send(request);
   }
 }
+
 
 
 /// Mantém a MESMA assinatura usada no app: getUserProfile(tokens.accessToken)
