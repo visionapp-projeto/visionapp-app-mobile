@@ -131,10 +131,11 @@ class _AuthHttpClient extends http.BaseClient {
   final String accessToken;
   final http.Client _inner;
 
-  _AuthHttpClient(String accessToken, [http.Client? inner])
-    : accessToken = accessToken,
-      _inner = inner ?? http.Client();
-       
+  // Construtor logo após os campos (ordem correta) e parâmetros como `final`
+  _AuthHttpClient(final String accessToken, [final http.Client? inner])
+      : accessToken = accessToken,
+        _inner = inner ?? http.Client();
+
   @override
   Future<http.StreamedResponse> send(final http.BaseRequest request) {
     request.headers['accept'] = 'application/json';
@@ -142,6 +143,7 @@ class _AuthHttpClient extends http.BaseClient {
     return _inner.send(request);
   }
 }
+
 
 /// Mantém a MESMA assinatura usada no app: getUserProfile(tokens.accessToken)
 Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
