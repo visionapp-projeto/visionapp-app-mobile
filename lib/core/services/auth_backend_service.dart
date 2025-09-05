@@ -257,10 +257,9 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
         }
         return normalized;
       }
-    } on Exception {
-      // fallback também falhou, ignora
+    } on Exception catch (_) {
+      // fallback também falhou — nada a fazer, segue para retornar null
     }
-
     return null;
   }
 }
