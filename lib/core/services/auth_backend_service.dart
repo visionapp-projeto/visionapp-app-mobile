@@ -150,20 +150,21 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
     token = t;
   }
 
-  // Se recentemente falhou, pula o backend e usa Keycloak diretamente
-  // if (_skipPerfilBackendUntil != null && DateTime.now().isBefore(_skipPerfilBackendUntil!)) {
-  //   if (kDebugMode) {
-  //     final until = _skipPerfilBackendUntil!.toIso8601String();
-  //     print('Pulando backend /usuario/perfil até $until; usando Keycloak UserInfo');
-  //   }
-  //   final kcInfo = await getKeycloakUserInfo(token);
-  //   if (kcInfo != null) {
-  //     final tokenMat = _matriculaFromToken(token);
-  //     return _normalizePerfil(kcInfo, tokenMatricula: tokenMat);
-  //   }
-  //   return null;
-  // }
+// Se recentemente falhou, pula o backend e usa Keycloak diretamente
+// if (_skipPerfilBackendUntil != null &&
+//     DateTime.now().isBefore(_skipPerfilBackendUntil!)) {
+//   if (kDebugMode) {
+//     final String until = _skipPerfilBackendUntil!.toIso8601String();
+//     print('Pulando backend /usuario/perfil até $until; usando Keycloak UserInfo');
+//   }
 
+//   final Map<String, dynamic>? kcInfo = await getKeycloakUserInfo(token);
+//   if (kcInfo != null) {
+//     final String? tokenMat = _matriculaFromToken(token);
+//     return _normalizePerfil(kcInfo, tokenMatricula: tokenMat);
+//   }
+//   return null;
+// }
   final uri = Uri.parse(ApiConstants.getuser);
   final client = _AuthHttpClient(token);
 
