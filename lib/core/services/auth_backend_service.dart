@@ -126,7 +126,7 @@ Map<String, dynamic> _normalizePerfil(
   };
 }
 
-// -------- Cliente HTTP que sempre manda Bearer (sem X-Matricula)
+// -------- Cliente HTTP que sempre manda Bearer 
 class _AuthHttpClient extends http.BaseClient {
   final String accessToken;
   final http.Client _inner;
@@ -173,6 +173,7 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
   //   }
   //   return null;
   // }
+  
   final Uri uri = Uri.parse(ApiConstants.getuser);
   final _AuthHttpClient client = _AuthHttpClient(token);
 
