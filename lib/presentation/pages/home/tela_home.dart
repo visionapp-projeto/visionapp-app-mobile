@@ -96,27 +96,27 @@ class _TelaHomeState extends State<TelaHome> {
         x == 'undefined';
   }
 
-  String? _clean(String? s) {
+  String? _clean(final String? s) {
     if (s == null) return null;
-    final t = s.trim();
+    final String t = s.trim();
     if (_isPlaceholder(t)) return null;
     return t;
   }
 
   // Lê primeira chave não-vazia (ignora placeholders) e busca também níveis comuns
-  String? _pickFirstNonEmpty(Map<String, dynamic>? map, List<String> keys) {
+  String? _pickFirstNonEmpty(final Map<String, dynamic>? map, final List<String> keys) {
     if (map == null) return null;
-    for (final k in keys) {
-      final v = map[k];
+    for (final String k in keys) {
+      final Object? v = map[k];
       if (v == null) continue;
-      final t = (v is String) ? v : v.toString();
-      final cleaned = _clean(t);
+      final String t = (v is String) ? v : v.toString();
+      final String? cleaned = _clean(t);
       if (cleaned != null) return cleaned;
     }
-    for (final nested in ['dados', 'perfil', 'user']) {
-      final sub = map[nested];
+    for (final String nested in ['dados', 'perfil', 'user']) {
+      final Object? sub = map[nested];
       if (sub is Map<String, dynamic>) {
-        final got = _pickFirstNonEmpty(sub, keys);
+        final String? got = _pickFirstNonEmpty(sub, keys);
         if (got != null) return got;
       }
     }
