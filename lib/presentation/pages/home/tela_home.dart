@@ -228,7 +228,6 @@ class _TelaHomeState extends State<TelaHome> {
     });
   }
 
-  @override
   Widget build(final BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -257,7 +256,7 @@ class _TelaHomeState extends State<TelaHome> {
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(
                 'Bem-Vindo(a),\n$nome!',
                 textAlign: TextAlign.center,
@@ -273,7 +272,7 @@ class _TelaHomeState extends State<TelaHome> {
                     context,
                     MaterialPageRoute(
                       builder:
-                          (context) => TelaBuscaCpf(
+                          (final BuildContext context) => TelaBuscaCpf(
                             token: _token ?? '',
                             perfil: _perfil ?? widget.perfil,
                           ),
