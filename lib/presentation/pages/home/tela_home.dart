@@ -81,7 +81,7 @@ class _TelaHomeState extends State<TelaHome> {
   // Placeholders que devem ser tratados como "vazios"
   bool _isPlaceholder(final String s) {
     final String x = s.trim().toLowerCase();
-    
+
     return x.isEmpty ||
         x == 'não informado' ||
         x == 'nao informado' ||
@@ -104,64 +104,72 @@ class _TelaHomeState extends State<TelaHome> {
   }
 
   // Lê primeira chave não-vazia (ignora placeholders) e busca também níveis comuns
-  String? _pickFirstNonEmpty(final Map<String, dynamic>? map, final List<String> keys) {
+  String? _pickFirstNonEmpty(
+    final Map<String, dynamic>? map,
+    final List<String> keys,
+  ) {
     if (map == null) return null;
+
     for (final String k in keys) {
       final Object? v = map[k];
       if (v == null) continue;
+
       final String t = (v is String) ? v : v.toString();
       final String? cleaned = _clean(t);
       if (cleaned != null) return cleaned;
     }
-    for (final String nested in ['dados', 'perfil', 'user']) {
+
+    for (final String nested in <String>['dados', 'perfil', 'user']) {
       final Object? sub = map[nested];
       if (sub is Map<String, dynamic>) {
         final String? got = _pickFirstNonEmpty(sub, keys);
         if (got != null) return got;
       }
     }
+
     return null;
   }
 
   // Escolhe na ordem: token → perfil → default
   String _chooseTPD({
-    String? tokenVal,
-    String? perfilVal,
-    required String fallback,
+    final String? tokenVal,
+    final String? perfilVal,
+    required final String fallback,
   }) {
-    final t = _clean(tokenVal);
+    final String? t = _clean(tokenVal);
     if (t != null) return t;
-    final p = _clean(perfilVal);
+
+    final String? p = _clean(perfilVal);
     if (p != null) return p;
+
     return fallback;
   }
 
   void _preencherCampos() {
-    final p = _perfil ?? widget.perfil;
-    final args = ModalRoute.of(context)?.settings.arguments;
+    final Map<String, dynamic>? p = _perfil ?? widget.perfil;
+    final Object? args = ModalRoute.of(context)?.settings.arguments;
 
     // Nome
-    final nomeBase =
-        (widget.nomeUsuario ??
-                (args is String
-                    ? args
-                    : _pickFirstNonEmpty(p, ['nome', 'fullName', 'name'])) ??
-                'Usuário')
-            .toString();
+    final String nomeBase =
+        widget.nomeUsuario ??
+        (args is String
+            ? args
+            : _pickFirstNonEmpty(p, ['nome', 'fullName', 'name'])) ??
+        'Usuário';
 
-    // PERFIL (sem defaults aqui; defaults ficam para _chooseTPD)
-    final perfilCargo = _pickFirstNonEmpty(p, [
+    // PERFIL (mapa)
+    final String? perfilCargo = _pickFirstNonEmpty(p, [
       'cargo',
       'funcao',
       'role',
       'roleName',
     ]);
-    final perfilClasse = _pickFirstNonEmpty(p, [
+    final String? perfilClasse = _pickFirstNonEmpty(p, [
       'nivel_classe',
       'classe',
       'nivelClasse',
     ]);
-    final perfilMatricula = _pickFirstNonEmpty(p, [
+    final String? perfilMatricula = _pickFirstNonEmpty(p, [
       'matricula',
       'matriculaServidor',
       'registration',
