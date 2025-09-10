@@ -266,9 +266,9 @@ class _TelaHomeState extends State<TelaHome> {
               HomeButton(
                 assetImagePath: 'assets/lupa_cpf.png',
                 texto: 'Busca por CPF',
-                onPressed: () {
+                onPressed: () async {
                   FocusScope.of(context).unfocus();
-                  Navigator.push(
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder:
