@@ -178,12 +178,9 @@ class _TelaHomeState extends State<TelaHome> {
     ]);
 
     // TOKEN (claims)
-    final String? tokenCargo =
-        AuthTokenService().getCargo();
-    final String? tokenClasse =
-        AuthTokenService().getClasse();
-    final String? tokenMatricula =
-        AuthTokenService().getMatricula();
+    final String? tokenCargo = AuthTokenService().getCargo();
+    final String? tokenClasse = AuthTokenService().getClasse();
+    final String? tokenMatricula = AuthTokenService().getMatricula();
 
     // Nome completo
     final String? perfilNomeCompleto = _pickFirstNonEmpty(p, [
@@ -232,7 +229,7 @@ class _TelaHomeState extends State<TelaHome> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -240,7 +237,7 @@ class _TelaHomeState extends State<TelaHome> {
         elevation: 0,
         leading: Builder(
           builder:
-              (context) => IconButton(
+              (final BuildContext context) => IconButton(
                 icon: Image.asset(
                   'assets/icon_drawer.png',
                   width: 16,
