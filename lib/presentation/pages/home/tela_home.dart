@@ -79,8 +79,9 @@ class _TelaHomeState extends State<TelaHome> {
   // ===== Helpers de leitura segura =====
 
   // Placeholders que devem ser tratados como "vazios"
-  bool _isPlaceholder(String s) {
-    final x = s.trim().toLowerCase();
+  bool _isPlaceholder(final String s) {
+    final String x = s.trim().toLowerCase();
+    
     return x.isEmpty ||
         x == 'não informado' ||
         x == 'nao informado' ||
