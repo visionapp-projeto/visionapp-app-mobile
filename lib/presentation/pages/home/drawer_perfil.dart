@@ -1,10 +1,11 @@
+// lib/presentation/pages/home/drawer_perfil.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:vision_app/core/constants/app_colors.dart';
 import 'package:vision_app/core/constants/app_texts.dart';
 import 'package:vision_app/core/utils/formatacao.dart';
 import 'package:vision_app/presentation/pages/home/pop-up_logout.dart';
 import 'package:vision_app/presentation/widgets/infotextline.dart';
-
 
 class CustomDrawer extends StatelessWidget {
   final String nomeCompleto;
@@ -20,25 +21,34 @@ class CustomDrawer extends StatelessWidget {
     required this.matricula,
   });
 
+  // >>> Adicione este método para descrever as propriedades públicas no debug
   @override
-  Widget build(BuildContext context) {
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(StringProperty('nomeCompleto', nomeCompleto))
+      ..add(StringProperty('cargo', cargo))
+      ..add(StringProperty('classe', classe))
+      ..add(StringProperty('matricula', matricula));
+  }
+
+  @override
+  Widget build(final BuildContext context) { // final no parâmetro
     return Drawer(
       backgroundColor: ColorPalette.dark,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
+          children: <Widget>[ // tipagem explícita (opcional)
             // Botão X para fechar
             Padding(
               padding: const EdgeInsets.only(top: 16.0, right: 8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
-                children: [
+                children: <Widget>[
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.white, size: 28),
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Fecha o Drawer
-                    },
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
@@ -48,17 +58,12 @@ class CustomDrawer extends StatelessWidget {
               StandardTexts.appTitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                fontSize: 32,
-                fontWeight: FontWeight.w700,
-              ),
+                    fontSize: 32,
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
-
             const SizedBox(height: 24),
-            Image.asset(
-              'assets/star_logo.png',
-              height: 55,
-              width: 55,
-            ),
+            Image.asset('assets/star_logo.png', height: 55, width: 55),
             const SizedBox(height: 24),
 
             SizedBox(
@@ -82,7 +87,7 @@ class CustomDrawer extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     infoTextLine('Cargo: ', cargo),
                     const SizedBox(height: 12),
                     infoTextLine('Classe: ', classe),
@@ -108,9 +113,7 @@ class CustomDrawer extends StatelessWidget {
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  onPressed: () {
-                    mostrarDialogoLogout(context);
-                  },
+                  onPressed: () => mostrarDialogoLogout(context),
                   style: TextButton.styleFrom(
                     foregroundColor: ColorPalette.lightbutton,
                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
