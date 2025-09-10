@@ -14,8 +14,21 @@ class TelaHome extends StatefulWidget {
   const TelaHome({super.key, this.nomeUsuario, this.perfil});
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(StringProperty('nomeUsuario', nomeUsuario, defaultValue: null))
+      ..add(DiagnosticsProperty<Map<String, dynamic>?>(
+        'perfil',
+        perfil,
+        defaultValue: null,
+      ));
+  }
+
+  @override
   State<TelaHome> createState() => _TelaHomeState();
 }
+
 
 class _TelaHomeState extends State<TelaHome> {
   String nome = 'Usuário';
