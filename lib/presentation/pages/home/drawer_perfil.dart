@@ -33,13 +33,14 @@ class CustomDrawer extends StatelessWidget {
   }
 
   @override
-  Widget build(final BuildContext context) { // final no parâmetro
+  Widget build(final BuildContext context) {
     return Drawer(
       backgroundColor: ColorPalette.dark,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[ // tipagem explícita (opcional)
+          children: <Widget>[
+            // <--- aqui também sugere tipagem explícita
             // Botão X para fechar
             Padding(
               padding: const EdgeInsets.only(top: 16.0, right: 8.0),
@@ -47,8 +48,14 @@ class CustomDrawer extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white, size: 28),
-                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
                   ),
                 ],
               ),
@@ -58,9 +65,9 @@ class CustomDrawer extends StatelessWidget {
               StandardTexts.appTitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w700,
-                  ),
+                fontSize: 32,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             const SizedBox(height: 24),
             Image.asset('assets/star_logo.png', height: 55, width: 55),
@@ -104,7 +111,11 @@ class CustomDrawer extends StatelessWidget {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
-                  icon: const Icon(Icons.logout, color: ColorPalette.lightbutton, size: 32),
+                  icon: const Icon(
+                    Icons.logout,
+                    color: ColorPalette.lightbutton,
+                    size: 32,
+                  ),
                   label: const Text(
                     'Sair',
                     style: TextStyle(
@@ -116,7 +127,10 @@ class CustomDrawer extends StatelessWidget {
                   onPressed: () => mostrarDialogoLogout(context),
                   style: TextButton.styleFrom(
                     foregroundColor: ColorPalette.lightbutton,
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 8,
+                    ),
                   ),
                 ),
               ),
