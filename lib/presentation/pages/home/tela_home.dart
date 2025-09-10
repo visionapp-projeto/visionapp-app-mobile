@@ -178,30 +178,32 @@ class _TelaHomeState extends State<TelaHome> {
     ]);
 
     // TOKEN (claims)
-    final tokenCargo = AuthTokenService().getCargo(); // ex.: "Segurança"
-    final tokenClasse = AuthTokenService().getClasse(); // ex.: "Tenente"
-    final tokenMatricula =
-        AuthTokenService().getMatricula(); // ex.: "222222222"
+    final String? tokenCargo =
+        AuthTokenService().getCargo();
+    final String? tokenClasse =
+        AuthTokenService().getClasse();
+    final String? tokenMatricula =
+        AuthTokenService().getMatricula();
 
     // Nome completo
-    final perfilNomeCompleto = _pickFirstNonEmpty(p, [
+    final String? perfilNomeCompleto = _pickFirstNonEmpty(p, [
       'nome',
       'fullName',
       'name',
     ]);
 
     // Aplica ordem TOKEN → PERFIL → DEFAULT
-    final novoCargo = _chooseTPD(
+    final String novoCargo = _chooseTPD(
       tokenVal: tokenCargo,
       perfilVal: perfilCargo,
       fallback: 'Cargo não informado',
     );
-    final novaClasse = _chooseTPD(
+    final String novaClasse = _chooseTPD(
       tokenVal: tokenClasse,
       perfilVal: perfilClasse,
       fallback: 'Classe não informada',
     );
-    final novaMatricula = _chooseTPD(
+    final String novaMatricula = _chooseTPD(
       tokenVal: tokenMatricula,
       perfilVal: perfilMatricula,
       fallback: 'Matrícula não informada',
