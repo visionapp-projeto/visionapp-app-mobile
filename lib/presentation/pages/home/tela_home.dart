@@ -41,6 +41,16 @@ class _TelaHomeState extends State<TelaHome> {
   Map<String, dynamic>? _perfil;
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(StringProperty('nome', nome));
+    properties.add(StringProperty('nomeCompleto', nomeCompleto));
+    properties.add(StringProperty('cargo', cargo));
+    properties.add(StringProperty('classe', classe));
+    properties.add(StringProperty('matricula', matricula));
+  }
+
+  @override
   void initState() {
     super.initState();
     _bootstrap();
