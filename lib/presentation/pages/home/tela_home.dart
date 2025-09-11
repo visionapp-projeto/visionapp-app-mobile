@@ -8,13 +8,13 @@ import 'package:vision_app/core/services/auth_token_service.dart';
 import '../../widgets/button.dart';
 
 class TelaHome extends StatefulWidget {
+  const TelaHome({super.key, this.nomeUsuario, this.perfil});
+
   final String? nomeUsuario;
   final Map<String, dynamic>? perfil;
 
-  const TelaHome({super.key, this.nomeUsuario, this.perfil});
-
   @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  void debugFillProperties(final DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties
       ..add(StringProperty('nomeUsuario', nomeUsuario, defaultValue: null))
@@ -42,7 +42,7 @@ class _TelaHomeState extends State<TelaHome> {
   Map<String, dynamic>? _perfil;
 
   @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  void debugFillProperties(final DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(StringProperty('nome', nome));
     properties.add(StringProperty('nomeCompleto', nomeCompleto));
@@ -54,7 +54,7 @@ class _TelaHomeState extends State<TelaHome> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(_bootstrap);
+    Future.microtask(() async => _bootstrap());
   }
 
   Future<void> _bootstrap() async {
