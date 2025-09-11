@@ -8,11 +8,6 @@ import 'package:vision_app/presentation/pages/home/pop-up_logout.dart';
 import 'package:vision_app/presentation/widgets/infotextline.dart';
 
 class CustomDrawer extends StatelessWidget {
-  final String nomeCompleto;
-  final String cargo;
-  final String classe;
-  final String matricula;
-
   const CustomDrawer({
     super.key,
     required this.nomeCompleto,
@@ -20,10 +15,16 @@ class CustomDrawer extends StatelessWidget {
     required this.classe,
     required this.matricula,
   });
+  
+  final String nomeCompleto;
+  final String cargo;
+  final String classe;
+  final String matricula;
+
 
   // >>> Adicione este método para descrever as propriedades públicas no debug
   @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  void debugFillProperties(final DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties
       ..add(StringProperty('nomeCompleto', nomeCompleto))
