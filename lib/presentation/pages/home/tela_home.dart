@@ -228,6 +228,7 @@ class _TelaHomeState extends State<TelaHome> {
     });
   }
 
+  @override
   Widget build(final BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
