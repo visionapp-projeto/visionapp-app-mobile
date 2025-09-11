@@ -14,6 +14,20 @@ class TelaHome extends StatefulWidget {
   const TelaHome({super.key, this.nomeUsuario, this.perfil});
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(StringProperty('nomeUsuario', nomeUsuario, defaultValue: null))
+      ..add(
+        DiagnosticsProperty<Map<String, dynamic>?>(
+          'perfil',
+          perfil,
+          defaultValue: null,
+        ),
+      );
+  }
+
+  @override
   State<TelaHome> createState() => _TelaHomeState();
 }
 
@@ -28,14 +42,24 @@ class _TelaHomeState extends State<TelaHome> {
   Map<String, dynamic>? _perfil;
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(StringProperty('nome', nome));
+    properties.add(StringProperty('nomeCompleto', nomeCompleto));
+    properties.add(StringProperty('cargo', cargo));
+    properties.add(StringProperty('classe', classe));
+    properties.add(StringProperty('matricula', matricula));
+  }
+
+  @override
   void initState() {
     super.initState();
-    _bootstrap();
+    Future.microtask(_bootstrap);
   }
 
   Future<void> _bootstrap() async {
     // 1) Garante token em cache -> habilita leitura de claims
-    final t = await AuthTokenService().getValidAccessToken();
+    final String? t = await AuthTokenService().getValidAccessToken();
     if (!mounted) return;
     setState(() => _token = t);
 
@@ -55,8 +79,9 @@ class _TelaHomeState extends State<TelaHome> {
   // ===== Helpers de leitura segura =====
 
   // Placeholders que devem ser tratados como "vazios"
-  bool _isPlaceholder(String s) {
-    final x = s.trim().toLowerCase();
+  bool _isPlaceholder(final String s) {
+    final String x = s.trim().toLowerCase();
+
     return x.isEmpty ||
         x == 'não informado' ||
         x == 'nao informado' ||
@@ -71,55 +96,80 @@ class _TelaHomeState extends State<TelaHome> {
         x == 'undefined';
   }
 
-  String? _clean(String? s) {
+  String? _clean(final String? s) {
     if (s == null) return null;
-    final t = s.trim();
+    final String t = s.trim();
     if (_isPlaceholder(t)) return null;
     return t;
   }
 
   // Lê primeira chave não-vazia (ignora placeholders) e busca também níveis comuns
-  String? _pickFirstNonEmpty(Map<String, dynamic>? map, List<String> keys) {
+  String? _pickFirstNonEmpty(
+    final Map<String, dynamic>? map,
+    final List<String> keys,
+  ) {
     if (map == null) return null;
-    for (final k in keys) {
-      final v = map[k];
+
+    for (final String k in keys) {
+      final Object? v = map[k];
       if (v == null) continue;
-      final t = (v is String) ? v : v.toString();
-      final cleaned = _clean(t);
+
+      final String t = (v is String) ? v : v.toString();
+      final String? cleaned = _clean(t);
       if (cleaned != null) return cleaned;
     }
-    for (final nested in ['dados', 'perfil', 'user']) {
-      final sub = map[nested];
+
+    for (final String nested in <String>['dados', 'perfil', 'user']) {
+      final Object? sub = map[nested];
       if (sub is Map<String, dynamic>) {
-        final got = _pickFirstNonEmpty(sub, keys);
+        final String? got = _pickFirstNonEmpty(sub, keys);
         if (got != null) return got;
       }
     }
+
     return null;
   }
 
   // Escolhe na ordem: token → perfil → default
-  String _chooseTPD({String? tokenVal, String? perfilVal, required String fallback}) {
-    final t = _clean(tokenVal);
+  String _chooseTPD({
+    final String? tokenVal,
+    final String? perfilVal,
+    required final String fallback,
+  }) {
+    final String? t = _clean(tokenVal);
     if (t != null) return t;
-    final p = _clean(perfilVal);
+
+    final String? p = _clean(perfilVal);
     if (p != null) return p;
+
     return fallback;
   }
 
   void _preencherCampos() {
-    final p = _perfil ?? widget.perfil;
-    final args = ModalRoute.of(context)?.settings.arguments;
+    final Map<String, dynamic>? p = _perfil ?? widget.perfil;
+    final Object? args = ModalRoute.of(context)?.settings.arguments;
 
     // Nome
-    final nomeBase = (widget.nomeUsuario ??
-        (args is String ? args : _pickFirstNonEmpty(p, ['nome', 'fullName', 'name'])) ??
-        'Usuário').toString();
+    final String nomeBase =
+        widget.nomeUsuario ??
+        (args is String
+            ? args
+            : _pickFirstNonEmpty(p, ['nome', 'fullName', 'name'])) ??
+        'Usuário';
 
-    // PERFIL (sem defaults aqui; defaults ficam para _chooseTPD)
-    final perfilCargo = _pickFirstNonEmpty(p, ['cargo', 'funcao', 'role', 'roleName']);
-    final perfilClasse = _pickFirstNonEmpty(p, ['nivel_classe', 'classe', 'nivelClasse']);
-    final perfilMatricula = _pickFirstNonEmpty(p, [
+    // PERFIL (mapa)
+    final String? perfilCargo = _pickFirstNonEmpty(p, [
+      'cargo',
+      'funcao',
+      'role',
+      'roleName',
+    ]);
+    final String? perfilClasse = _pickFirstNonEmpty(p, [
+      'nivel_classe',
+      'classe',
+      'nivelClasse',
+    ]);
+    final String? perfilMatricula = _pickFirstNonEmpty(p, [
       'matricula',
       'matriculaServidor',
       'registration',
@@ -128,25 +178,29 @@ class _TelaHomeState extends State<TelaHome> {
     ]);
 
     // TOKEN (claims)
-    final tokenCargo = AuthTokenService().getCargo();   // ex.: "Segurança"
-    final tokenClasse = AuthTokenService().getClasse(); // ex.: "Tenente"
-    final tokenMatricula = AuthTokenService().getMatricula(); // ex.: "222222222"
+    final String? tokenCargo = AuthTokenService().getCargo();
+    final String? tokenClasse = AuthTokenService().getClasse();
+    final String? tokenMatricula = AuthTokenService().getMatricula();
 
     // Nome completo
-    final perfilNomeCompleto = _pickFirstNonEmpty(p, ['nome', 'fullName', 'name']);
+    final String? perfilNomeCompleto = _pickFirstNonEmpty(p, [
+      'nome',
+      'fullName',
+      'name',
+    ]);
 
     // Aplica ordem TOKEN → PERFIL → DEFAULT
-    final novoCargo = _chooseTPD(
+    final String novoCargo = _chooseTPD(
       tokenVal: tokenCargo,
       perfilVal: perfilCargo,
       fallback: 'Cargo não informado',
     );
-    final novaClasse = _chooseTPD(
+    final String novaClasse = _chooseTPD(
       tokenVal: tokenClasse,
       perfilVal: perfilClasse,
       fallback: 'Classe não informada',
     );
-    final novaMatricula = _chooseTPD(
+    final String novaMatricula = _chooseTPD(
       tokenVal: tokenMatricula,
       perfilVal: perfilMatricula,
       fallback: 'Matrícula não informada',
@@ -154,9 +208,15 @@ class _TelaHomeState extends State<TelaHome> {
 
     if (kDebugMode) {
       print('Claims JWT: ${AuthTokenService().claims}');
-      print('perfilCargo=$perfilCargo, tokenCargo=$tokenCargo -> escolhido=$novoCargo');
-      print('perfilClasse=$perfilClasse, tokenClasse=$tokenClasse -> escolhido=$novaClasse');
-      print('perfilMatricula=$perfilMatricula, tokenMatricula=$tokenMatricula -> escolhido=$novaMatricula');
+      print(
+        'perfilCargo=$perfilCargo, tokenCargo=$tokenCargo -> escolhido=$novoCargo',
+      );
+      print(
+        'perfilClasse=$perfilClasse, tokenClasse=$tokenClasse -> escolhido=$novaClasse',
+      );
+      print(
+        'perfilMatricula=$perfilMatricula, tokenMatricula=$tokenMatricula -> escolhido=$novaMatricula',
+      );
     }
 
     setState(() {
@@ -168,18 +228,22 @@ class _TelaHomeState extends State<TelaHome> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Builder(
-          builder: (context) => IconButton(
-            icon: Image.asset('assets/icon_drawer.png', width: 16, height: 12),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
+          builder:
+              (final BuildContext context) => IconButton(
+                icon: Image.asset(
+                  'assets/icon_drawer.png',
+                  width: 16,
+                  height: 12,
+                ),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              ),
         ),
       ),
       drawer: CustomDrawer(
@@ -192,7 +256,7 @@ class _TelaHomeState extends State<TelaHome> {
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(
                 'Bem-Vindo(a),\n$nome!',
                 textAlign: TextAlign.center,
@@ -202,15 +266,16 @@ class _TelaHomeState extends State<TelaHome> {
               HomeButton(
                 assetImagePath: 'assets/lupa_cpf.png',
                 texto: 'Busca por CPF',
-                onPressed: () {
+                onPressed: () async {
                   FocusScope.of(context).unfocus();
-                  Navigator.push(
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => TelaBuscaCpf(
-                        token: _token ?? '',
-                        perfil: _perfil ?? widget.perfil,
-                      ),
+                      builder:
+                          (final BuildContext context) => TelaBuscaCpf(
+                            token: _token ?? '',
+                            perfil: _perfil ?? widget.perfil,
+                          ),
                     ),
                   );
                 },
