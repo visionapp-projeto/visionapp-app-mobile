@@ -270,9 +270,9 @@ class _TelaHomeState extends State<TelaHome> {
                 texto: 'Busca por CPF',
                 onPressed: () async {
                   FocusScope.of(context).unfocus();
-                  await Navigator.push(
+                  await Navigator.push<void>(
                     context,
-                    MaterialPageRoute(
+                    MaterialPageRoute<void>(
                       builder:
                           (final BuildContext context) => TelaBuscaCpf(
                             token: _token ?? '',
