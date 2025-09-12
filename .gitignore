@@ -4,6 +4,9 @@
 ios/Pods/
 ios/Flutter/Flutter.framework
 
+mac/
+linux/
+windows/
 
 build/
 **/build/
