@@ -6,15 +6,16 @@ import 'package:vision_app/presentation/pages/home/drawer_perfil.dart';
 import 'package:vision_app/presentation/pages/home/pop-up_facerules.dart';
 import 'package:vision_app/core/services/auth_token_service.dart';
 import '../../widgets/button.dart';
+import 'dart:async';
 
 class TelaHome extends StatefulWidget {
+  const TelaHome({super.key, this.nomeUsuario, this.perfil});
+
   final String? nomeUsuario;
   final Map<String, dynamic>? perfil;
 
-  const TelaHome({super.key, this.nomeUsuario, this.perfil});
-
   @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  void debugFillProperties(final DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties
       ..add(StringProperty('nomeUsuario', nomeUsuario, defaultValue: null))
@@ -42,7 +43,7 @@ class _TelaHomeState extends State<TelaHome> {
   Map<String, dynamic>? _perfil;
 
   @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  void debugFillProperties(final DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(StringProperty('nome', nome));
     properties.add(StringProperty('nomeCompleto', nomeCompleto));
@@ -54,7 +55,7 @@ class _TelaHomeState extends State<TelaHome> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(_bootstrap);
+    scheduleMicrotask(_bootstrap);
   }
 
   Future<void> _bootstrap() async {
@@ -154,22 +155,22 @@ class _TelaHomeState extends State<TelaHome> {
         widget.nomeUsuario ??
         (args is String
             ? args
-            : _pickFirstNonEmpty(p, ['nome', 'fullName', 'name'])) ??
+            : _pickFirstNonEmpty(p, <String>['nome', 'fullName', 'name'])) ??
         'Usuário';
 
     // PERFIL (mapa)
-    final String? perfilCargo = _pickFirstNonEmpty(p, [
+    final String? perfilCargo = _pickFirstNonEmpty(p, <String>[
       'cargo',
       'funcao',
       'role',
       'roleName',
     ]);
-    final String? perfilClasse = _pickFirstNonEmpty(p, [
+    final String? perfilClasse = _pickFirstNonEmpty(p, <String>[
       'nivel_classe',
       'classe',
       'nivelClasse',
     ]);
-    final String? perfilMatricula = _pickFirstNonEmpty(p, [
+    final String? perfilMatricula = _pickFirstNonEmpty(p, <String>[
       'matricula',
       'matriculaServidor',
       'registration',
@@ -183,7 +184,7 @@ class _TelaHomeState extends State<TelaHome> {
     final String? tokenMatricula = AuthTokenService().getMatricula();
 
     // Nome completo
-    final String? perfilNomeCompleto = _pickFirstNonEmpty(p, [
+    final String? perfilNomeCompleto = _pickFirstNonEmpty(p, <String>[
       'nome',
       'fullName',
       'name',
@@ -228,6 +229,7 @@ class _TelaHomeState extends State<TelaHome> {
     });
   }
 
+  @override
   Widget build(final BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -268,9 +270,9 @@ class _TelaHomeState extends State<TelaHome> {
                 texto: 'Busca por CPF',
                 onPressed: () async {
                   FocusScope.of(context).unfocus();
-                  await Navigator.push(
+                  await Navigator.push<void>(
                     context,
-                    MaterialPageRoute(
+                    MaterialPageRoute<void>(
                       builder:
                           (final BuildContext context) => TelaBuscaCpf(
                             token: _token ?? '',
