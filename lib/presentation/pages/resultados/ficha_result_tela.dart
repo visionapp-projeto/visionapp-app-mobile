@@ -91,10 +91,10 @@ class _FichaResultPageState extends State<FichaResultPage> {
                   right: 37,
                   bottom: 24,
                 ),
-                children: [
+                children: <Widget>[
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
+                    children: <Widget>[
                       // Foto, Nome, Vulgo
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -106,13 +106,13 @@ class _FichaResultPageState extends State<FichaResultPage> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Column(
-                          children: [
+                          children: <Widget>[
                             GestureDetector(
-                              onTap: () {
-                                showDialog(
+                              onTap: () async{
+                                await showDialog<void>(
                                   context: context,
                                   builder:
-                                      (context) => ImagePopup(
+                                      (final BuildContext context) => ImagePopup(
                                         imageUrl:
                                             widget.ficha?['foto_url'] ??
                                             'https://i.imgur.com/j6xgQ7D.png',
@@ -131,7 +131,7 @@ class _FichaResultPageState extends State<FichaResultPage> {
                             RichText(
                               textAlign: TextAlign.center,
                               text: TextSpan(
-                                children: [
+                                children: <InlineSpan>[
                                   TextSpan(
                                     text:
                                         widget.ficha?['nome'] ??
@@ -148,7 +148,7 @@ class _FichaResultPageState extends State<FichaResultPage> {
                             const SizedBox(height: 18),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
+                              children: <Widget>[
                                 Transform.translate(
                                   offset: const Offset(1, -3),
                                   child: SvgPicture.asset(
@@ -183,7 +183,7 @@ class _FichaResultPageState extends State<FichaResultPage> {
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                          children: <Widget>[
                             _buildInfoRow(
                               'CPF',
                               formatCpf(widget.ficha?['cpf']),
