@@ -146,9 +146,9 @@ class _AuthHttpClient extends http.BaseClient {
 
 
 /// Mantém a MESMA assinatura usada no app: getUserProfile(tokens.accessToken)
-Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
+Future<Map<String, dynamic>?> getUserProfile(final String accessToken) async {
   // Fallback defensivo
-  String token = access_token.trim();
+  String token = accessToken.trim();
   if (token.isEmpty) {
     final String? t = await AuthTokenService().getValidAccessToken();
     if (t == null) {
@@ -241,7 +241,7 @@ Future<Map<String, dynamic>?> getUserProfile(final String access_token) async {
   } on FormatException catch (e) {
     if (kDebugMode) debugPrint('JSON inválido no perfil: $e');
     return null;
-  } on Exception catch (e) {
+  } on Exception {
     // ✅ troca o catch cru por on Exception
     // if (kDebugMode) debugPrint('Exception no getUserProfile: $e');
     // _skipPerfilBackendUntil = DateTime.now().add(const Duration(minutes: 10));
