@@ -56,7 +56,7 @@ class _FichaResultPageState extends State<FichaResultPage> {
   @override
   Widget build(final BuildContext context) {
     final List<Map<String, dynamic>> crimes =
-        (widget.ficha?['crimes'] as List?)?.cast<Map<String, dynamic>>() ??
+        (widget.ficha?['crimes'] as List<Map<String, dynamic>>?) ??
         const <Map<String, dynamic>>[];
 
     return Scaffold(
