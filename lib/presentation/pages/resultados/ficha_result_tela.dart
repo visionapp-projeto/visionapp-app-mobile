@@ -55,6 +55,10 @@ class _FichaResultPageState extends State<FichaResultPage> {
 
   @override
   Widget build(final BuildContext context) {
+    final List<Map<String, dynamic>> crimes =
+        (widget.ficha?['crimes'] as List?)?.cast<Map<String, dynamic>>() ??
+        const <Map<String, dynamic>>[];
+
     return Scaffold(
       backgroundColor: ColorPalette.dark,
       appBar: AppBar(
@@ -68,7 +72,9 @@ class _FichaResultPageState extends State<FichaResultPage> {
               await Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                  builder: (final BuildContext context) => TelaHome(perfil: widget.perfil),
+                  builder:
+                      (final BuildContext context) =>
+                          TelaHome(perfil: widget.perfil),
                 ),
                 (final Route<dynamic> route) => false,
               );
@@ -108,11 +114,13 @@ class _FichaResultPageState extends State<FichaResultPage> {
                         child: Column(
                           children: <Widget>[
                             GestureDetector(
-                              onTap: () async{
+                              onTap: () async {
                                 await showDialog<void>(
                                   context: context,
                                   builder:
-                                      (final BuildContext context) => ImagePopup(
+                                      (
+                                        final BuildContext context,
+                                      ) => ImagePopup(
                                         imageUrl:
                                             widget.ficha?['foto_url'] ??
                                             'https://i.imgur.com/j6xgQ7D.png',
@@ -224,16 +232,12 @@ class _FichaResultPageState extends State<FichaResultPage> {
                       ),
                       const SizedBox(height: 20),
 
-                      if (widget.ficha?['crimes'] != null)
-                        ...List.generate(
-                          widget.ficha?['crimes'].length,
-                          (index) => Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: 12,
-                            ), // define o espaçamento entre os cards
-                            child: CrimeCard(
-                              crime: widget.ficha?['crimes'][index],
-                            ),
+                      if (crimes.isNotEmpty)
+                        ...List<Widget>.generate(
+                          crimes.length,
+                          (final int index) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: CrimeCard(crime: crimes[index]),
                           ),
                         ),
                     ],
@@ -338,7 +342,7 @@ class CrimeCard extends StatelessWidget {
             Row(
               children: [
                 SvgPicture.asset(
-                  'assets/LocationMarkerOutline.svg', // substitua com o caminho do seu arquivo
+                  'assets/LocationMarkerOutline.svg',
                   width: 20,
                   height: 20,
                 ),
