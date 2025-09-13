@@ -282,9 +282,10 @@ class CrimeCard extends StatelessWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<Map<String, dynamic>?>('crime', crime));
+    properties.add(
+      DiagnosticsProperty<Map<String, dynamic>?>('crime', crime),
+    );
   }
-
   @override
   Widget build(final BuildContext context) {
     return Card(
@@ -300,10 +301,10 @@ class CrimeCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+              children: <Widget>[
                 Text(
                   'Mandato',
                   style: Theme.of(context).textTheme.displayMedium,
@@ -340,7 +341,7 @@ class CrimeCard extends StatelessWidget {
             infoTextLine('Artigo: ', crime?['artigo'] ?? 'Não informado'),
             const SizedBox(height: 6),
             Row(
-              children: [
+              children: <Widget>[
                 SvgPicture.asset(
                   'assets/LocationMarkerOutline.svg',
                   width: 20,
