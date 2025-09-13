@@ -8,12 +8,12 @@ import '../../controllers/fazer_login_controller.dart';
 class Logincontainer extends StatelessWidget {
   const Logincontainer({super.key});
 
-  void _entrar(BuildContext context) {
-    fazerLogin(context: context);
+  Future<void> _entrar(final BuildContext context) async {
+    await fazerLogin(context: context);
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -25,10 +25,16 @@ class Logincontainer extends StatelessWidget {
         border: Border.all(color: ColorPalette.cinza, width: 1),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(top: 42, right: 24, left: 25, bottom: 64),
+        padding: const EdgeInsets.only(
+          top: 42,
+          right: 24,
+          left: 25,
+          bottom: 64,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch, // ocupa toda a largura
+          crossAxisAlignment:
+              CrossAxisAlignment.stretch, // ocupa toda a largura
           children: <Widget>[
             // Botão Entrar (fluido)
             SizedBox(
@@ -42,7 +48,7 @@ class Logincontainer extends StatelessWidget {
               alignment: WrapAlignment.center,
               crossAxisAlignment: WrapCrossAlignment.center,
               spacing: 4,
-              children: [
+              children: <Widget>[
                 const Text(
                   'Não possui uma conta?',
                   style: TextStyle(
@@ -52,28 +58,36 @@ class Logincontainer extends StatelessWidget {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {
-                    showDialog(
+                  onPressed: () async{
+                    await showDialog<void>(
                       context: context,
-                      barrierColor: Colors.transparent, // mantém seu fundo transparente
-                      builder: (BuildContext context) {
+                      barrierColor:
+                          Colors.transparent, // mantém seu fundo transparente
+                      builder: (final BuildContext context) {
                         return Stack(
-                          children: [
+                          children: <Widget>[
                             // Fundo com o papel de parede
                             Positioned.fill(
-                              child: Image.asset('assets/logo.png', fit: BoxFit.cover),
+                              child: Image.asset(
+                                'assets/logo.png',
+                                fit: BoxFit.cover,
+                              ),
                             ),
                             // Popup centralizado (seu layout original, com melhorias de responsividade)
                             Center(
                               child: Container(
                                 padding: const EdgeInsets.all(20),
-                                margin: const EdgeInsets.symmetric(horizontal: 20),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                ),
                                 decoration: BoxDecoration(
                                   color: ColorPalette.branco,
                                   borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
+                                  boxShadow: <BoxShadow>[
                                     BoxShadow(
-                                      color: ColorPalette.preto.withOpacity(0.25),
+                                      color: ColorPalette.preto.withOpacity(
+                                        0.25,
+                                      ),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),
@@ -81,20 +95,31 @@ class Logincontainer extends StatelessWidget {
                                 ),
                                 child: SingleChildScrollView(
                                   child: ConstrainedBox(
-                                    constraints: const BoxConstraints(maxWidth: 420),
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 420,
+                                    ),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Image(image: AssetImage('assets/IconApp.png')),
+                                      children: <Widget>[
+                                        const Image(
+                                          image: AssetImage(
+                                            'assets/IconApp.png',
+                                          ),
+                                        ),
                                         const SizedBox(height: 12),
                                         Text(
                                           'Não tem cadastro?',
-                                          style: Theme.of(context).textTheme.titleMedium,
+                                          style:
+                                              Theme.of(
+                                                context,
+                                              ).textTheme.titleMedium,
                                           textAlign: TextAlign.center,
                                         ),
                                         const SizedBox(height: 25),
                                         const Padding(
-                                          padding: EdgeInsets.symmetric(horizontal: 30.0),
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 30.0,
+                                          ),
                                           child: Text(
                                             'Entre em contato com um superior para liberar seu acesso ao VisionApp.',
                                             style: TextStyle(
@@ -113,7 +138,9 @@ class Logincontainer extends StatelessWidget {
                                           height: 44,
                                           child: Button(
                                             text: 'Entendido',
-                                            onPressed: () => Navigator.of(context).pop(),
+                                            onPressed:
+                                                () =>
+                                                    Navigator.of(context).pop(),
                                           ),
                                         ),
                                         const SizedBox(height: 12),
