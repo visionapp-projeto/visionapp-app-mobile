@@ -252,10 +252,10 @@ class _FichaResultPageState extends State<FichaResultPage> {
     );
   }
 
-  Widget _buildInfoRow(String label, String? value) {
+  Widget _buildInfoRow(final String label, final String? value) {
     return RichText(
       text: TextSpan(
-        children: [
+        children: <InlineSpan>[
           TextSpan(
             text: '$label: ',
             style: const TextStyle(
