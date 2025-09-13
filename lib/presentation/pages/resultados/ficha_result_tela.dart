@@ -7,13 +7,9 @@ import 'package:vision_app/core/utils/vulgo.dart';
 import 'package:vision_app/core/utils/formatacao.dart';
 import 'package:vision_app/presentation/widgets/infotextline.dart';
 import 'package:vision_app/presentation/widgets/navbar.dart';
+import 'package:flutter/foundation.dart';
 
 class FichaResultPage extends StatefulWidget {
-  final Map<String, dynamic>? ficha;
-  final Map<String, dynamic>? perfil;
-  final String token;
-  final bool fromAmbiguity;
-
   const FichaResultPage({
     super.key,
     this.ficha,
@@ -21,6 +17,22 @@ class FichaResultPage extends StatefulWidget {
     required this.token,
     this.fromAmbiguity = false,
   });
+
+  final Map<String, dynamic>? ficha;
+  final Map<String, dynamic>? perfil;
+  final String token;
+  final bool fromAmbiguity;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<Map<String, dynamic>?>('ficha', ficha));
+    properties.add(
+      DiagnosticsProperty<Map<String, dynamic>?>('perfil', perfil),
+    );
+    properties.add(DiagnosticsProperty<String>('token', token));
+    properties.add(DiagnosticsProperty<bool>('fromAmbiguity', fromAmbiguity));
+  }
 
   @override
   State<FichaResultPage> createState() => _FichaResultPageState();
@@ -154,7 +166,6 @@ class _FichaResultPageState extends State<FichaResultPage> {
                                     color: ColorPalette.branco,
                                   ),
                                 ),
-                                
                               ],
                             ),
                           ],
@@ -195,9 +206,7 @@ class _FichaResultPageState extends State<FichaResultPage> {
                             const SizedBox(height: 15),
                             _buildInfoRow(
                               'Possui gêmeo(a)',
-                              widget.ficha?['gemeo'] == true
-                                  ? 'Sim'
-                                  : 'Não',
+                              widget.ficha?['gemeo'] == true ? 'Sim' : 'Não',
                             ),
                           ],
                         ),
@@ -262,9 +271,15 @@ class _FichaResultPageState extends State<FichaResultPage> {
 }
 
 class CrimeCard extends StatelessWidget {
-  final Map<dynamic, dynamic>? crime;
-
   const CrimeCard({super.key, required this.crime});
+
+  final Map<String, dynamic>? crime;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<Map<String, dynamic>?>('crime', crime));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -313,7 +328,10 @@ class CrimeCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 7),
-            infoTextLine('Data: ', crime?['data_ocorrencia'] ?? 'Não informada'),
+            infoTextLine(
+              'Data: ',
+              crime?['data_ocorrencia'] ?? 'Não informada',
+            ),
             const SizedBox(height: 6),
             infoTextLine('Artigo: ', crime?['artigo'] ?? 'Não informado'),
             const SizedBox(height: 6),
