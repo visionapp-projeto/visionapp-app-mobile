@@ -54,23 +54,23 @@ class _FichaResultPageState extends State<FichaResultPage> {
   // }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       backgroundColor: ColorPalette.dark,
       appBar: AppBar(
         backgroundColor: ColorPalette.dark,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () {
+          onPressed: () async {
             if (widget.fromAmbiguity) {
               Navigator.pop(context);
             } else {
-              Navigator.pushAndRemoveUntil(
+              await Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TelaHome(perfil: widget.perfil),
+                  builder: (final BuildContext context) => TelaHome(perfil: widget.perfil),
                 ),
-                (Route<dynamic> route) => false,
+                (final Route<dynamic> route) => false,
               );
             }
           },
@@ -282,7 +282,7 @@ class CrimeCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Card(
       color: ColorPalette.azulMarinho,
       margin: const EdgeInsets.symmetric(),
