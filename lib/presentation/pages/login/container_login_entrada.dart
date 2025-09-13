@@ -59,13 +59,13 @@ class Logincontainer extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    showDialog(
+                    showDialog<void>(
                       context: context,
                       barrierColor:
                           Colors.transparent, // mantém seu fundo transparente
-                      builder: (BuildContext context) {
+                      builder: (final BuildContext context) {
                         return Stack(
-                          children: [
+                          children: <Widget>[
                             // Fundo com o papel de parede
                             Positioned.fill(
                               child: Image.asset(
@@ -83,7 +83,7 @@ class Logincontainer extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: ColorPalette.branco,
                                   borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
+                                  boxShadow: <BoxShadow>[
                                     BoxShadow(
                                       color: ColorPalette.preto.withOpacity(
                                         0.25,
@@ -100,7 +100,7 @@ class Logincontainer extends StatelessWidget {
                                     ),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
-                                      children: [
+                                      children: <Widget>[
                                         const Image(
                                           image: AssetImage(
                                             'assets/IconApp.png',
