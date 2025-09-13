@@ -8,13 +8,13 @@ class ImagePopup extends StatelessWidget {
   final String imageUrl;
 
   @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  void debugFillProperties(final DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<String>('imageUrl', imageUrl));
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
       child: Align(

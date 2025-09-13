@@ -24,7 +24,7 @@ class FichaResultPage extends StatefulWidget {
   final bool fromAmbiguity;
 
   @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  void debugFillProperties(final DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<Map<String, dynamic>?>('ficha', ficha));
     properties.add(
@@ -69,9 +69,9 @@ class _FichaResultPageState extends State<FichaResultPage> {
             if (widget.fromAmbiguity) {
               Navigator.pop(context);
             } else {
-              await Navigator.pushAndRemoveUntil(
+              await Navigator.pushAndRemoveUntil<TelaHome>(
                 context,
-                MaterialPageRoute(
+                MaterialPageRoute<TelaHome>(
                   builder:
                       (final BuildContext context) =>
                           TelaHome(perfil: widget.perfil),
@@ -280,12 +280,11 @@ class CrimeCard extends StatelessWidget {
   final Map<String, dynamic>? crime;
 
   @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  void debugFillProperties(final DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(
-      DiagnosticsProperty<Map<String, dynamic>?>('crime', crime),
-    );
+    properties.add(DiagnosticsProperty<Map<String, dynamic>?>('crime', crime));
   }
+
   @override
   Widget build(final BuildContext context) {
     return Card(
