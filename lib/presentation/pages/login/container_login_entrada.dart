@@ -58,8 +58,8 @@ class Logincontainer extends StatelessWidget {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {
-                    showDialog<void>(
+                  onPressed: () async{
+                    await showDialog<void>(
                       context: context,
                       barrierColor:
                           Colors.transparent, // mantém seu fundo transparente
