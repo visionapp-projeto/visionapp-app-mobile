@@ -7,9 +7,13 @@ import 'package:vision_app/core/utils/vulgo.dart';
 import 'package:vision_app/core/utils/formatacao.dart';
 import 'package:vision_app/presentation/widgets/infotextline.dart';
 import 'package:vision_app/presentation/widgets/navbar.dart';
-import 'package:flutter/foundation.dart';
 
 class FichaResultPage extends StatefulWidget {
+  final Map<String, dynamic>? ficha;
+  final Map<String, dynamic>? perfil;
+  final String token;
+  final bool fromAmbiguity;
+
   const FichaResultPage({
     super.key,
     this.ficha,
@@ -17,22 +21,6 @@ class FichaResultPage extends StatefulWidget {
     required this.token,
     this.fromAmbiguity = false,
   });
-
-  final Map<String, dynamic>? ficha;
-  final Map<String, dynamic>? perfil;
-  final String token;
-  final bool fromAmbiguity;
-
-  @override
-  void debugFillProperties(final DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<Map<String, dynamic>?>('ficha', ficha));
-    properties.add(
-      DiagnosticsProperty<Map<String, dynamic>?>('perfil', perfil),
-    );
-    properties.add(DiagnosticsProperty<String>('token', token));
-    properties.add(DiagnosticsProperty<bool>('fromAmbiguity', fromAmbiguity));
-  }
 
   @override
   State<FichaResultPage> createState() => _FichaResultPageState();
@@ -54,29 +42,23 @@ class _FichaResultPageState extends State<FichaResultPage> {
   // }
 
   @override
-  Widget build(final BuildContext context) {
-    final List<Map<String, dynamic>> crimes =
-        (widget.ficha?['crimes'] as List<Map<String, dynamic>>?) ??
-        const <Map<String, dynamic>>[];
-
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorPalette.dark,
       appBar: AppBar(
         backgroundColor: ColorPalette.dark,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () async {
+          onPressed: () {
             if (widget.fromAmbiguity) {
               Navigator.pop(context);
             } else {
-              await Navigator.pushAndRemoveUntil<TelaHome>(
+              Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute<TelaHome>(
-                  builder:
-                      (final BuildContext context) =>
-                          TelaHome(perfil: widget.perfil),
+                MaterialPageRoute(
+                  builder: (context) => TelaHome(perfil: widget.perfil),
                 ),
-                (final Route<dynamic> route) => false,
+                (Route<dynamic> route) => false,
               );
             }
           },
@@ -97,10 +79,10 @@ class _FichaResultPageState extends State<FichaResultPage> {
                   right: 37,
                   bottom: 24,
                 ),
-                children: <Widget>[
+                children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
+                    children: [
                       // Foto, Nome, Vulgo
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -112,15 +94,13 @@ class _FichaResultPageState extends State<FichaResultPage> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Column(
-                          children: <Widget>[
+                          children: [
                             GestureDetector(
-                              onTap: () async {
-                                await showDialog<void>(
+                              onTap: () {
+                                showDialog(
                                   context: context,
                                   builder:
-                                      (
-                                        final BuildContext context,
-                                      ) => ImagePopup(
+                                      (context) => ImagePopup(
                                         imageUrl:
                                             widget.ficha?['foto_url'] ??
                                             'https://i.imgur.com/j6xgQ7D.png',
@@ -139,7 +119,7 @@ class _FichaResultPageState extends State<FichaResultPage> {
                             RichText(
                               textAlign: TextAlign.center,
                               text: TextSpan(
-                                children: <InlineSpan>[
+                                children: [
                                   TextSpan(
                                     text:
                                         widget.ficha?['nome'] ??
@@ -156,7 +136,7 @@ class _FichaResultPageState extends State<FichaResultPage> {
                             const SizedBox(height: 18),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
+                              children: [
                                 Transform.translate(
                                   offset: const Offset(1, -3),
                                   child: SvgPicture.asset(
@@ -174,6 +154,7 @@ class _FichaResultPageState extends State<FichaResultPage> {
                                     color: ColorPalette.branco,
                                   ),
                                 ),
+                                
                               ],
                             ),
                           ],
@@ -191,7 +172,7 @@ class _FichaResultPageState extends State<FichaResultPage> {
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
+                          children: [
                             _buildInfoRow(
                               'CPF',
                               formatCpf(widget.ficha?['cpf']),
@@ -214,7 +195,9 @@ class _FichaResultPageState extends State<FichaResultPage> {
                             const SizedBox(height: 15),
                             _buildInfoRow(
                               'Possui gêmeo(a)',
-                              widget.ficha?['gemeo'] == true ? 'Sim' : 'Não',
+                              widget.ficha?['gemeo'] == true
+                                  ? 'Sim'
+                                  : 'Não',
                             ),
                           ],
                         ),
@@ -232,12 +215,16 @@ class _FichaResultPageState extends State<FichaResultPage> {
                       ),
                       const SizedBox(height: 20),
 
-                      if (crimes.isNotEmpty)
-                        ...List<Widget>.generate(
-                          crimes.length,
-                          (final int index) => Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: CrimeCard(crime: crimes[index]),
+                      if (widget.ficha?['crimes'] != null)
+                        ...List.generate(
+                          widget.ficha?['crimes'].length,
+                          (index) => Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: 12,
+                            ), // define o espaçamento entre os cards
+                            child: CrimeCard(
+                              crime: widget.ficha?['crimes'][index],
+                            ),
                           ),
                         ),
                     ],
@@ -252,10 +239,10 @@ class _FichaResultPageState extends State<FichaResultPage> {
     );
   }
 
-  Widget _buildInfoRow(final String label, final String? value) {
+  Widget _buildInfoRow(String label, String? value) {
     return RichText(
       text: TextSpan(
-        children: <InlineSpan>[
+        children: [
           TextSpan(
             text: '$label: ',
             style: const TextStyle(
@@ -275,18 +262,12 @@ class _FichaResultPageState extends State<FichaResultPage> {
 }
 
 class CrimeCard extends StatelessWidget {
+  final Map<dynamic, dynamic>? crime;
+
   const CrimeCard({super.key, required this.crime});
 
-  final Map<String, dynamic>? crime;
-
   @override
-  void debugFillProperties(final DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<Map<String, dynamic>?>('crime', crime));
-  }
-
-  @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return Card(
       color: ColorPalette.azulMarinho,
       margin: const EdgeInsets.symmetric(),
@@ -300,10 +281,10 @@ class CrimeCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
+          children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
+              children: [
                 Text(
                   'Mandato',
                   style: Theme.of(context).textTheme.displayMedium,
@@ -332,17 +313,14 @@ class CrimeCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 7),
-            infoTextLine(
-              'Data: ',
-              crime?['data_ocorrencia'] ?? 'Não informada',
-            ),
+            infoTextLine('Data: ', crime?['data_ocorrencia'] ?? 'Não informada'),
             const SizedBox(height: 6),
             infoTextLine('Artigo: ', crime?['artigo'] ?? 'Não informado'),
             const SizedBox(height: 6),
             Row(
-              children: <Widget>[
+              children: [
                 SvgPicture.asset(
-                  'assets/LocationMarkerOutline.svg',
+                  'assets/LocationMarkerOutline.svg', // substitua com o caminho do seu arquivo
                   width: 20,
                   height: 20,
                 ),
