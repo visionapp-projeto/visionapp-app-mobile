@@ -48,7 +48,7 @@ class Logincontainer extends StatelessWidget {
               alignment: WrapAlignment.center,
               crossAxisAlignment: WrapCrossAlignment.center,
               spacing: 4,
-              children: [
+              children: <Widget>[
                 const Text(
                   'Não possui uma conta?',
                   style: TextStyle(
