@@ -41,10 +41,10 @@ Future<void> fazerLogin({
       final kcInfo = await getKeycloakUserInfo(tokens.accessToken);
       if (kcInfo != null) {
         perfil = {
-          'nome': kcInfo['name'] ?? kcInfo['preferred_username'] ?? 'Usuário',
-          'cargo': 'Cargo não informado',
-          'nivel_classe': 'Classe não informada',
-          'matricula': kcInfo['preferred_username'] ?? '',
+          'name': kcInfo['name'] ?? kcInfo['preferred_username'] ?? 'Usuário',
+          'cargo': kcInfo['cargo'] ?? 'Cargo não informado',
+          'classe': kcInfo['classe'] ?? 'Classe não informada',
+          'matricula': kcInfo['matricula'] ?? kcInfo['preferred_username'] ?? '',
         };
       }
     }
