@@ -72,19 +72,6 @@ Future<void> handleConfirmUpload({
     final token = AuthTokenService().token;
     final String? matricula = perfil?['matricula'];
 
-    debugPrint("📸 Captured image path: ${capturedImage?.path}");
-    debugPrint("🔑 Token recuperado: $token");
-    debugPrint("👤 Matrícula: $matricula");
-
-    if (token != null) {
-      final resultado = await uploadService.enviarImagem(
-        capturedImage,
-        token,
-        matricula!,
-      );
-
-      debugPrint("📡 Resultado do upload: $resultado");
-    } 
     if (token != null && matricula != null) {
       final resultado = await uploadService.enviarImagem(
         capturedImage,
