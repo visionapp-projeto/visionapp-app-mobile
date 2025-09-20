@@ -12,94 +12,90 @@ import 'dart:convert'; // Para JSON
 class UploadService {
 
 
-  Future<Map<String, dynamic>> enviarImagem(
+Future<Map<String, dynamic>> enviarImagem(
   File imageFile,
   String token,
-  ) async {
-    try {
-      // Sem envio de matrícula na requisição
-      final uri = Uri.parse(ApiConstants.uploadendpoint);
-
-      final request = http.MultipartRequest('POST', uri);
-
-      // Cabeçalhos
-      request.headers.addAll({
-        'Authorization': 'Bearer $token',
-      });
-
-      // Arquivo da imagem
-      final mimeTypeStr = mime.lookupMimeType(imageFile.path) ?? 'application/octet-stream';
-      final contentType = MediaType.parse(mimeTypeStr);
-      final stream = http.ByteStream(imageFile.openRead());
-      final length = await imageFile.length();
-
-      final multipartFile = http.MultipartFile(
-        'file',
-        stream,
-        length,
-        filename: imageFile.path.split('/').last,
-        contentType: contentType,
-      );
-
-      request.files.add(multipartFile);
-
-      final response = await request.send();
-      final responseData = await response.stream.bytesToString();
-
-      if (response.statusCode != 200) {
-        throw Exception('Falha ao enviar imagem: ${response.statusCode}');
-      }
-
-      if (kDebugMode) {
-        print('Imagem enviada com sucesso!');
-        print('Resposta: $responseData');
-      }
-
-      return json.decode(responseData);
-    } catch (e) {
-      if (kDebugMode) {
-        print('Erro ao enviar imagem: $e');
-      }
-      rethrow;
-    }
-  }
-
-
-  Future<Map<String, dynamic>> buscarFichaPorCpf(String cpf, String token) async {
-  // Sem envio de matrícula como parâmetro de consulta
-  final Uri url = Uri.parse(
-    '${ApiConstants.fichaendpoint}$cpf',
-  );
-
-
-
+  String matricula,
+) async {
   try {
-    final response = await http.get(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'accept': 'application/json',
-      },
+    final uri = Uri.parse(ApiConstants.uploadendpoint);
+
+    final request = http.MultipartRequest('POST', uri);
+
+    // Cabeçalhos
+    request.headers.addAll({
+      'Authorization': 'Bearer $token',
+      'accept': 'application/json', // igual ao curl
+    });
+
+    // Campo matricula (como no -F 'matricula=333333333')
+    request.fields['matricula'] = matricula;
+
+    // Arquivo da imagem
+    final mimeTypeStr = mime.lookupMimeType(imageFile.path) ?? 'application/octet-stream';
+    final contentType = MediaType.parse(mimeTypeStr);
+    final stream = http.ByteStream(imageFile.openRead());
+    final length = await imageFile.length();
+
+    final multipartFile = http.MultipartFile(
+      'file', // tem que ser o mesmo nome que a API espera
+      stream,
+      length,
+      filename: imageFile.path.split('/').last,
+      contentType: contentType,
     );
 
-    if (kDebugMode) {
-      print('🔐 Token: $token');
-      print('📞 URL: $url');
-      print('Status code: ${response.statusCode}');
-      print('Body: ${response.body}');
-    }
+    request.files.add(multipartFile);
+
+    // Envia
+    final response = await request.send();
+    final responseData = await response.stream.bytesToString();
 
     if (response.statusCode != 200) {
-      throw Exception('Erro ao buscar ficha: ${response.statusCode}');
+      throw Exception('Falha ao enviar imagem: ${response.statusCode} -> $responseData');
     }
 
-    return json.decode(response.body);
+    if (kDebugMode) {
+      print('Imagem enviada com sucesso!');
+      print('Resposta: $responseData');
+    }
+
+    return json.decode(responseData);
   } catch (e) {
     if (kDebugMode) {
-      print('Erro: $e');
+      print('Erro ao enviar imagem: $e');
     }
     rethrow;
   }
 }
+
+
+
+  Future<dynamic> buscarFichaPorCpf(String cpf, String token, String? matricula) async {
+  final Uri uri = Uri.parse(ApiConstants.fichaendpoint);
+
+  final Map<String, dynamic> body = {
+    'cpf': cpf,
+    'matricula': matricula,
+  };
+
+  final response = await http.post(
+    uri,
+    headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode(body),
+  );
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    throw Exception('Erro ao buscar ficha');
+  }
+}
+
+
+
 
 }

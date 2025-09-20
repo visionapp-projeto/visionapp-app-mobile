@@ -70,10 +70,13 @@ Future<void> handleConfirmUpload({
 
   try {
     final token = AuthTokenService().token;
-    if (token != null) {
+    final String? matricula = perfil?['matricula'];
+
+    if (token != null && matricula != null) {
       final resultado = await uploadService.enviarImagem(
         capturedImage,
         token,
+        matricula, // <-- Adicione aqui
       );
 
       Navigator.pop(context);
