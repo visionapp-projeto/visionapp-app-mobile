@@ -3,13 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vision_app/core/constants/app_colors.dart';
-// import 'package:vision_app/presentation/pages/camera/popup_dialog_nada_consta.dart';
-// import 'package:vision_app/presentation/pages/home/tela_home.dart';
-// import 'package:vision_app/presentation/widgets/loading_dialog.dart';
+import 'package:vision_app/core/services/auth_backend_service.dart';
+import 'package:vision_app/core/services/keycloack_auth_service.dart';
+import 'package:vision_app/core/services/local_storage_service.dart';
+import 'package:vision_app/presentation/pages/home/tela_home.dart';
+import 'package:vision_app/presentation/pages/login/tela_login.dart';
 import 'package:vision_app/presentation/widgets/navbar.dart';
 import 'package:vision_app/presentation/widgets/button.dart';
-// import 'package:vision_app/core/services/upload_service.dart';
-// import 'package:vision_app/presentation/pages/resultados/ficha_result_tela.dart';
 import '../../controllers/busca_cpf_controller.dart';
 
 class TelaBuscaCpf extends StatefulWidget {
@@ -24,15 +24,53 @@ class TelaBuscaCpf extends StatefulWidget {
 
 class _TelaBuscaCpfState extends State<TelaBuscaCpf> with BuscaCpfController {
   final _cpfCtrl = TextEditingController();
-  final bool _isLoading = false;
+  bool _isLoading = false; // Agora mutável
   String? _cpfError;
 
   @override
   void initState() {
     super.initState();
     _cpfCtrl.clear(); // Limpa o campo CPF ao entrar na tela
+    _checkLogin();
   }
 
+  Future<void> _checkLogin() async {
+    final storage = LocalStorageService();
+    final kc = KeycloakAuthService();
+
+    var tokens = await storage.loadTokens();
+    if (tokens != null) {
+      if (tokens.isExpired) {
+        final refreshed = await kc.refresh(tokens.refreshToken);
+        if (refreshed == null) {
+          _goToLogin();
+          return;
+        }
+        await storage.saveTokens(refreshed);
+        tokens = refreshed;
+      }
+
+      final perfil = await getUserProfile(tokens.accessToken);
+      if (perfil != null) {
+        // Aqui, em vez de ir para TelaHome, você só mantém o perfil ou atualiza a tela
+        setState(() {
+          widget.perfil?.addAll(perfil); // opcional: atualiza perfil local
+        });
+        return; // apenas retorna, sem navegar
+      }
+    }
+    // Se não tiver tokens ou perfil inválido, vai para login
+    _goToLogin();
+  }
+
+  void _goToLogin() {
+    if (!mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const TelaLogin()),
+      (_) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,12 +80,8 @@ class _TelaBuscaCpfState extends State<TelaBuscaCpf> with BuscaCpfController {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios,
-          ), // Troque para o ícone que quiser
-          onPressed: () {
-            Navigator.pop(context); // Mantém o comportamento padrão de voltar
-          },
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Column(
@@ -57,7 +91,7 @@ class _TelaBuscaCpfState extends State<TelaBuscaCpf> with BuscaCpfController {
             child: Text(
               'Buscar por\nCPF',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.displayLarge
+              style: Theme.of(context).textTheme.displayLarge,
             ),
           ),
           const SizedBox(height: 32),
@@ -73,7 +107,7 @@ class _TelaBuscaCpfState extends State<TelaBuscaCpf> with BuscaCpfController {
                 children: [
                   Text(
                     'Digite o CPF',
-                    style: Theme.of(context).textTheme.displayMedium
+                    style: Theme.of(context).textTheme.displayMedium,
                   ),
                   const SizedBox(height: 25),
                   SizedBox(
@@ -83,9 +117,7 @@ class _TelaBuscaCpfState extends State<TelaBuscaCpf> with BuscaCpfController {
                       keyboardType: TextInputType.number,
                       inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(
-                          11,
-                        ), // por exemplo, limite 11 caracteres
+                        LengthLimitingTextInputFormatter(11),
                       ],
                       style: const TextStyle(color: ColorPalette.preto),
                       decoration: InputDecoration(
@@ -108,7 +140,6 @@ class _TelaBuscaCpfState extends State<TelaBuscaCpf> with BuscaCpfController {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 34),
                   _isLoading
                       ? const CircularProgressIndicator()
@@ -116,14 +147,17 @@ class _TelaBuscaCpfState extends State<TelaBuscaCpf> with BuscaCpfController {
                         height: 48,
                         child: Button(
                           text: "Pesquisar",
-                          onPressed: () {
-                            buscarFicha(
+                          onPressed: () async {
+                            setState(() => _isLoading = true);
+                            await buscarFicha(
                               context: context,
                               cpfCtrl: _cpfCtrl,
                               token: widget.token,
                               perfil: widget.perfil,
-                              setCpfError: (err) => setState(() => _cpfError = err),
+                              setCpfError:
+                                  (err) => setState(() => _cpfError = err),
                             );
+                            setState(() => _isLoading = false);
                           },
                         ),
                       ),
