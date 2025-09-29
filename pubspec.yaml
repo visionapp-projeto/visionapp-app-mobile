@@ -46,6 +46,7 @@ dependencies:
   image: ^3.1.16
 
 
+
   google_fonts: ^5.0.0
   http_parser: ^4.1.2
   flutter_svg: ^2.1.0
