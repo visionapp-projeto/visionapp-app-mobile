@@ -3,9 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:face_camera/face_camera.dart';
 import 'package:vision_app/core/constants/app_colors.dart';
+import 'package:vision_app/core/services/auth_backend_service.dart';
+import 'package:vision_app/core/services/keycloack_auth_service.dart';
+import 'package:vision_app/core/services/local_storage_service.dart';
 import 'package:vision_app/presentation/controllers/face_camera_controller_setup.dart';
 import 'package:vision_app/presentation/pages/camera/face_overlay.dart';
 import 'package:vision_app/presentation/controllers/face_utils.dart';
+import 'package:vision_app/presentation/pages/login/tela_login.dart';
 import 'dart:io';
 import '../../../core/services/upload_service.dart';
 import '../../controllers/face_camera_utils.dart';
@@ -48,8 +52,8 @@ class _FaceCameraPageState extends State<FaceCameraPage> {
         });
       },
     );
+    _checkLogin();
   }
-
 
   void _toggleFlashMode() {
     setState(() {
@@ -60,7 +64,43 @@ class _FaceCameraPageState extends State<FaceCameraPage> {
     });
   }
 
+  Future<void> _checkLogin() async {
+    final storage = LocalStorageService();
+    final kc = KeycloakAuthService();
 
+    var tokens = await storage.loadTokens();
+    if (tokens != null) {
+      if (tokens.isExpired) {
+        final refreshed = await kc.refresh(tokens.refreshToken);
+        if (refreshed == null) {
+          _goToLogin();
+          return;
+        }
+        await storage.saveTokens(refreshed);
+        tokens = refreshed;
+      }
+
+      final perfil = await getUserProfile(tokens.accessToken);
+      if (perfil != null) {
+        // Aqui, em vez de ir para TelaHome, você só mantém o perfil ou atualiza a tela
+        setState(() {
+          widget.perfil?.addAll(perfil); // opcional: atualiza perfil local
+        });
+        return; // apenas retorna, sem navegar
+      }
+    }
+    // Se não tiver tokens ou perfil inválido, vai para login
+    _goToLogin();
+  }
+
+  void _goToLogin() {
+    if (!mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const TelaLogin()),
+      (_) => false,
+    );
+  }
 
   Future<void> _handleConfirmUpload() async {
     await handleConfirmUpload(
@@ -74,7 +114,6 @@ class _FaceCameraPageState extends State<FaceCameraPage> {
       uploadService: _uploadService,
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -189,8 +228,8 @@ class _FaceCameraPageState extends State<FaceCameraPage> {
                               _currentFlashMode == CameraFlashMode.always
                                   ? Icons.flash_on
                                   : _currentFlashMode == CameraFlashMode.off
-                                      ? Icons.flash_off
-                                      : Icons.flash_auto,
+                                  ? Icons.flash_off
+                                  : Icons.flash_auto,
                               size: 25,
                               color: Colors.white,
                             ),

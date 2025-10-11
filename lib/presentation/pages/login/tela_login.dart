@@ -6,10 +6,10 @@ class TelaLogin extends StatelessWidget {
   const TelaLogin({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Scaffold(
       body: Stack(
-        children: [
+        children: <Widget>[
           // Imagem de fundo
           Container(
             decoration: const BoxDecoration(
@@ -25,7 +25,7 @@ class TelaLogin extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: Column(
-                children: [
+                children: <Widget>[
                   const SizedBox(height: 32),
                   const Image(
                     image: AssetImage('assets/IconApp.png'),

@@ -1,3 +1,5 @@
+// lib/presentation/pages/home/drawer_perfil.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:vision_app/core/constants/app_colors.dart';
 import 'package:vision_app/core/constants/app_texts.dart';
@@ -6,11 +8,6 @@ import 'package:vision_app/presentation/pages/home/pop-up_logout.dart';
 import 'package:vision_app/presentation/widgets/infotextline.dart';
 
 class CustomDrawer extends StatelessWidget {
-  final String nomeCompleto;
-  final String cargo;
-  final String classe;
-  final String matricula;
-
   const CustomDrawer({
     super.key,
     required this.nomeCompleto,
@@ -18,25 +15,47 @@ class CustomDrawer extends StatelessWidget {
     required this.classe,
     required this.matricula,
   });
+  
+  final String nomeCompleto;
+  final String cargo;
+  final String classe;
+  final String matricula;
+
+
+  // >>> Adicione este método para descrever as propriedades públicas no debug
+  @override
+  void debugFillProperties(final DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(StringProperty('nomeCompleto', nomeCompleto))
+      ..add(StringProperty('cargo', cargo))
+      ..add(StringProperty('classe', classe))
+      ..add(StringProperty('matricula', matricula));
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Drawer(
       backgroundColor: ColorPalette.dark,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
+          children: <Widget>[
+            // <--- aqui também sugere tipagem explícita
             // Botão X para fechar
             Padding(
               padding: const EdgeInsets.only(top: 16.0, right: 8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
-                children: [
+                children: <Widget>[
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white, size: 28),
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 28,
+                    ),
                     onPressed: () {
-                      Navigator.of(context).pop(); // Fecha o Drawer
+                      Navigator.of(context).pop();
                     },
                   ),
                 ],
@@ -51,13 +70,8 @@ class CustomDrawer extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-
             const SizedBox(height: 24),
-            Image.asset(
-              'assets/star_logo.png',
-              height: 55,
-              width: 55,
-            ),
+            Image.asset('assets/star_logo.png', height: 55, width: 55),
             const SizedBox(height: 24),
 
             SizedBox(
@@ -81,7 +95,7 @@ class CustomDrawer extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
                     infoTextLine('Cargo: ', cargo),
                     const SizedBox(height: 12),
                     infoTextLine('Classe: ', classe),
@@ -98,7 +112,11 @@ class CustomDrawer extends StatelessWidget {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
-                  icon: const Icon(Icons.logout, color: ColorPalette.lightbutton, size: 32),
+                  icon: const Icon(
+                    Icons.logout,
+                    color: ColorPalette.lightbutton,
+                    size: 32,
+                  ),
                   label: const Text(
                     'Sair',
                     style: TextStyle(
@@ -107,12 +125,13 @@ class CustomDrawer extends StatelessWidget {
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  onPressed: () {
-                    mostrarDialogoLogout(context);
-                  },
+                  onPressed: () => mostrarDialogoLogout(context),
                   style: TextButton.styleFrom(
                     foregroundColor: ColorPalette.lightbutton,
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 8,
+                    ),
                   ),
                 ),
               ),

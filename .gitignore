@@ -4,11 +4,14 @@
 ios/Pods/
 ios/Flutter/Flutter.framework
 
+macos/
+linux/
+windows/
 
 build/
 **/build/
 
-
+pubspec.lock
 
 # Miscellaneous
 *.class
@@ -59,3 +62,5 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+.sonarlint/

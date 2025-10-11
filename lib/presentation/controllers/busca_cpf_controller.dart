@@ -40,10 +40,12 @@ mixin BuscaCpfController<T extends StatefulWidget> on State<T> {
     showLoadingDialog(context, mensagem: 'Buscando ficha...');
 
     try {
+      final String? matricula = perfil?['matricula'];
+
       final responseBody = await _uploadService.buscarFichaPorCpf(
         cpf,
-        perfil?['matricula'],
         token,
+        matricula, 
       );
 
       final ficha = FichaModel.fromCpf(responseBody); // Converte o body para o model

@@ -1,45 +1,19 @@
-// ignore_for_file: use_build_context_synchronously, deprecated_member_use
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:vision_app/presentation/widgets/button.dart';
 import 'package:vision_app/core/constants/app_colors.dart';
 import '../../controllers/fazer_login_controller.dart';
 
-class Logincontainer extends StatefulWidget {
+class Logincontainer extends StatelessWidget {
   const Logincontainer({super.key});
 
-  @override
-  // ignore: library_private_types_in_public_api
-  _LogincontainerState createState() => _LogincontainerState();
-}
-
-class _LogincontainerState extends State<Logincontainer> {
-  bool _obscurePassword = true;
-  final emailController = TextEditingController();
-  final senhaController = TextEditingController();
-
-  String? _mensagemErroCpf;
-  String? _mensagemErroSenha;
-
-  void _setError(String? cpfError, String? senhaError) {
-    setState(() {
-      _mensagemErroCpf = cpfError;
-      _mensagemErroSenha = senhaError;
-    });
-  }
-
-  void _fazerLogin() {
-    fazerLogin(
-      context: context,
-      emailController: emailController,
-      senhaController: senhaController,
-      setError: _setError,
-    );
+  Future<void> _entrar(final BuildContext context) async {
+    await fazerLogin(context: context);
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -59,67 +33,22 @@ class _LogincontainerState extends State<Logincontainer> {
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment:
+              CrossAxisAlignment.stretch, // ocupa toda a largura
           children: <Widget>[
+            // Botão Entrar (fluido)
             SizedBox(
-              width: 326,
-              child: TextField(
-                style: Theme.of(context).textTheme.bodyMedium,
-                controller: emailController, // Isso causa o problema
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(
-                    11,
-                  ), // por exemplo, limite 11 caracteres
-                ],
-                decoration: InputDecoration(
-                  labelText: 'Digite seu CPF',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  errorText: _mensagemErroCpf,
-                ),
-              ),
+              height: 48,
+              child: Button(text: 'Entrar', onPressed: () => _entrar(context)),
             ),
-            const SizedBox(height: 20),
-
-            // CAMPO DE SENHA COM ÍCONE DE OLHO
-            SizedBox(
-              width: 326,
-              child: TextField(
-                style: Theme.of(context).textTheme.bodyMedium,
-                obscureText: _obscurePassword,
-                controller: senhaController,
-                decoration: InputDecoration(
-                  labelText: 'Digite sua senha',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  errorText: _mensagemErroSenha,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                      color: ColorPalette.preto,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-            Button(text: 'Entrar', onPressed: _fazerLogin),
             const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 0,
-              children: [
+
+            // Mensagem + Cadastrar (sem overflow)
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 4,
+              children: <Widget>[
                 const Text(
                   'Não possui uma conta?',
                   style: TextStyle(
@@ -128,26 +57,23 @@ class _LogincontainerState extends State<Logincontainer> {
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-                const SizedBox(width: 0),
                 TextButton(
-                  onPressed: () {
-                    showDialog(
+                  onPressed: () async{
+                    await showDialog<void>(
                       context: context,
                       barrierColor:
-                          Colors.transparent, // Deixa o fundo transparente
-                      builder: (BuildContext context) {
+                          Colors.transparent, // mantém seu fundo transparente
+                      builder: (final BuildContext context) {
                         return Stack(
-                          children: [
+                          children: <Widget>[
                             // Fundo com o papel de parede
-                            Container(
-                              decoration: const BoxDecoration(
-                                image: DecorationImage(
-                                  image: AssetImage('assets/logo.png'),
-                                  fit: BoxFit.cover,
-                                ),
+                            Positioned.fill(
+                              child: Image.asset(
+                                'assets/logo.png',
+                                fit: BoxFit.cover,
                               ),
                             ),
-                            // Popup centralizado
+                            // Popup centralizado (seu layout original, com melhorias de responsividade)
                             Center(
                               child: Container(
                                 padding: const EdgeInsets.all(20),
@@ -157,62 +83,70 @@ class _LogincontainerState extends State<Logincontainer> {
                                 decoration: BoxDecoration(
                                   color: ColorPalette.branco,
                                   borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
+                                  boxShadow: <BoxShadow>[
                                     BoxShadow(
-                                      color: ColorPalette.preto,
+                                      color: ColorPalette.preto.withOpacity(
+                                        0.25,
+                                      ),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // Ícone no topo
-                                    const Image(
-                                      image: AssetImage('assets/IconApp.png'),
+                                child: SingleChildScrollView(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 420,
                                     ),
-                                    const SizedBox(height: 12),
-                                    // Título
-                                    Text(
-                                      'Não tem cadastro?',
-                                      style:
-                                          Theme.of(
-                                            context,
-                                          ).textTheme.titleMedium,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    const SizedBox(height: 25),
-                                    // Mensagem
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 30.0,
-                                      ),
-                                      child: const Text(
-                                        'Entre em contato com um superior para liberar seu acesso ao VisionApp.',
-                                        style: TextStyle(
-                                          wordSpacing: 0,
-                                          letterSpacing: 0,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w400,
-                                          color: ColorPalette.preto,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        const Image(
+                                          image: AssetImage(
+                                            'assets/IconApp.png',
+                                          ),
                                         ),
-                                        textAlign: TextAlign.justify,
-                                      ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          'Não tem cadastro?',
+                                          style:
+                                              Theme.of(
+                                                context,
+                                              ).textTheme.titleMedium,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        const SizedBox(height: 25),
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 30.0,
+                                          ),
+                                          child: Text(
+                                            'Entre em contato com um superior para liberar seu acesso ao VisionApp.',
+                                            style: TextStyle(
+                                              wordSpacing: 0,
+                                              letterSpacing: 0,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w400,
+                                              color: ColorPalette.preto,
+                                            ),
+                                            textAlign: TextAlign.justify,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 24),
+                                        SizedBox(
+                                          width: double.infinity,
+                                          height: 44,
+                                          child: Button(
+                                            text: 'Entendido',
+                                            onPressed:
+                                                () =>
+                                                    Navigator.of(context).pop(),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 12),
+                                      ],
                                     ),
-                                    const SizedBox(height: 24),
-                                    // Botão
-                                    Button(
-                                      text: 'Entendido',
-                                      onPressed: () {
-                                        Navigator.of(
-                                          context,
-                                        ).pop(); // Fecha o popup
-                                      },
-                                    ),
-                                    
-                                    const SizedBox(height: 60),
-                                  ],
+                                  ),
                                 ),
                               ),
                             ),
