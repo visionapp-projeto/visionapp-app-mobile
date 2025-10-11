@@ -16,7 +16,7 @@ class keycloakConstants {
   static const String authEndpoint = '$issuer/protocol/openid-connect/auth';
   static const String tokenEndpoint = '$issuer/protocol/openid-connect/token';
 
-  static const String clientId = 'visionapp';
+  static const String clientId = 'visionapp-web';
   static const String redirectUri = 'com.visionapp://callback';
   static const String scopes = 'openid profile email';
 
